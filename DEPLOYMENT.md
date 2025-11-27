@@ -26,11 +26,13 @@
 4. **Set Environment Variables**
    Add these environment variables in Render dashboard:
    
-   **Option 1: Using DATABASE_URL (Recommended)**
+   **Option 1: Using SPRING_DATASOURCE_URL (Recommended)**
    ```
    SPRING_PROFILES_ACTIVE=production
    PORT=8082
-   DATABASE_URL=mysql://root:OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk@shortline.proxy.rlwy.net:56487/railway
+   SPRING_DATASOURCE_URL=jdbc:mysql://shortline.proxy.rlwy.net:56487/railway?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true&requireSSL=false
+   SPRING_DATASOURCE_USERNAME=root
+   SPRING_DATASOURCE_PASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
    SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
    SPRING_JPA_HIBERNATE_DDL_AUTO=update
    SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend-url.vercel.app,http://localhost:5173
