@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: baby-adoption-backend
+    env: java
+    buildCommand: cd baby-adoption-backend && mvn clean package -DskipTests
+    startCommand: cd baby-adoption-backend && java -jar target/baby-adoption-backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: baby-adoption-backend
+          property: port
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+        value: com.mysql.cj.jdbc.Driver
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: SPRING_WEB_CORS_ALLOWED_ORIGINS
+        sync: false
+
