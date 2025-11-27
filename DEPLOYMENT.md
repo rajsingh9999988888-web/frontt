@@ -25,15 +25,29 @@
 
 4. **Set Environment Variables**
    Add these environment variables in Render dashboard:
+   
+   **Option 1: Using DATABASE_URL (Recommended)**
    ```
    SPRING_PROFILES_ACTIVE=production
    PORT=8082
-   SPRING_DATASOURCE_URL=jdbc:mysql://[Railway MySQL Host]:[Port]/[Database]?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
-   SPRING_DATASOURCE_USERNAME=[Railway MySQL Username]
-   SPRING_DATASOURCE_PASSWORD=[Railway MySQL Password]
+   DATABASE_URL=mysql://root:OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk@shortline.proxy.rlwy.net:56487/railway
    SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
    SPRING_JPA_HIBERNATE_DDL_AUTO=update
-   SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend-url.onrender.com,http://localhost:5173
+   SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend-url.vercel.app,http://localhost:5173
+   ```
+   
+   **Option 2: Using Individual Variables**
+   ```
+   SPRING_PROFILES_ACTIVE=production
+   PORT=8082
+   MYSQLHOST=shortline.proxy.rlwy.net
+   MYSQLPORT=56487
+   MYSQLDATABASE=railway
+   MYSQLUSER=root
+   MYSQLPASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
+   SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+   SPRING_JPA_HIBERNATE_DDL_AUTO=update
+   SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend-url.vercel.app,http://localhost:5173
    ```
 
 ## Railway MySQL Database Setup
@@ -64,12 +78,26 @@
 
 ### Environment Variables for Render
 
-Use the Railway MySQL credentials in Render environment variables:
+**Railway MySQL Connection Details:**
+- **Host:** `shortline.proxy.rlwy.net`
+- **Port:** `56487`
+- **Database:** `railway`
+- **Username:** `root`
+- **Password:** `OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk`
+- **Connection URL:** `mysql://root:OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk@shortline.proxy.rlwy.net:56487/railway`
 
+**Recommended: Use DATABASE_URL in Render:**
 ```
-SPRING_DATASOURCE_URL=jdbc:mysql://[MYSQLHOST]:[MYSQLPORT]/[MYSQLDATABASE]?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
-SPRING_DATASOURCE_USERNAME=[MYSQLUSER]
-SPRING_DATASOURCE_PASSWORD=[MYSQLPASSWORD]
+DATABASE_URL=mysql://root:OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk@shortline.proxy.rlwy.net:56487/railway
+```
+
+**Or use individual variables:**
+```
+MYSQLHOST=shortline.proxy.rlwy.net
+MYSQLPORT=56487
+MYSQLDATABASE=railway
+MYSQLUSER=root
+MYSQLPASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
 ```
 
 ## Testing
