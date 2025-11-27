@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./baby-adoption-backend
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - db
+    networks:
+      - baby-adoption-network
+
+  frontend:
+    build: ./baby-adoption-website
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - baby-adoption-network
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: babyadoption
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - baby-adoption-network
+
+volumes:
+  postgres_data:
+
+networks:
+  baby-adoption-network:
+    driver: bridge
