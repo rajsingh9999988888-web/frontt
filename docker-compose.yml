@@ -22,20 +22,22 @@ services:
       - baby-adoption-network
 
   db:
-    image: postgres:13
+    image: mysql:8.0
     environment:
-      POSTGRES_DB: babyadoption
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      MYSQL_DATABASE: fun
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 9382019794
+      MYSQL_ROOT_PASSWORD: 9382019794
     ports:
-      - "5432:5432"
+      - "3307:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     networks:
       - baby-adoption-network
+    command: --default-authentication-plugin=mysql_native_password
 
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
   baby-adoption-network:
