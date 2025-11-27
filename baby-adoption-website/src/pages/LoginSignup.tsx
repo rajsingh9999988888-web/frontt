@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
 
 type Mode = 'login' | 'signup';
 type UserType = 'user' | 'recruiter';
@@ -86,7 +87,7 @@ export default function LoginSignup(): React.JSX.Element {
 
     try {
       if (!isSignup) {
-        const response = await fetch('http://localhost:8082/api/users/login', {
+        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: formData.email, password: formData.password }),
@@ -133,7 +134,7 @@ export default function LoginSignup(): React.JSX.Element {
               address: formData.address,
             };
 
-      const response = await fetch('http://localhost:8082/api/users/signup', {
+      const response = await fetch(`${API_BASE_URL}/api/users/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

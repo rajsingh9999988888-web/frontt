@@ -1,8 +1,7 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-
-const API_BASE_URL = 'http://localhost:8082';
+import { API_BASE_URL } from '../config/api';
 
 const inputClass =
   "w-full rounded-2xl border border-slate-200 bg-white/95 px-4 py-2.5 text-sm text-slate-700 shadow-sm transition focus:border-[#ff4f70] focus:outline-none focus:ring-2 focus:ring-[#ff4f70]/20 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100";

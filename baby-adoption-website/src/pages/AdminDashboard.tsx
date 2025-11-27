@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 type PendingPost = {
   id: number;
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:8082/admin/posts', {
+      const response = await fetch(`${API_BASE_URL}/admin/posts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +59,7 @@ export default function AdminDashboard() {
 
   const handleApprove = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:8082/admin/posts/${id}/approve`, {
+      const response = await fetch(`${API_BASE_URL}/admin/posts/${id}/approve`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -76,7 +77,7 @@ export default function AdminDashboard() {
 
   const handleReject = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:8082/admin/posts/${id}/reject`, {
+      const response = await fetch(`${API_BASE_URL}/admin/posts/${id}/reject`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-
-const API_BASE_URL = 'http://localhost:8082';
+import { API_BASE_URL } from '../config/api';
 
 type BabyPost = {
   id: number;

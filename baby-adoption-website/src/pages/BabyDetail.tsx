@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
 
 type Baby = {
   id: number;
@@ -64,7 +65,7 @@ export default function BabyDetail() {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8082/babies/${id}`);
+        const response = await fetch(`${API_BASE_URL}/babies/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch baby details');
         }
