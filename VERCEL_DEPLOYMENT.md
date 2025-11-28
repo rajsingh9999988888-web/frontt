@@ -13,10 +13,10 @@
 
    ```
    Name: VITE_API_BASE_URL
-   Value: https://your-backend.onrender.com
+   Value: https://baby-adoption-backend.onrender.com
    ```
 
-   Replace `your-backend.onrender.com` with your actual Render backend URL.
+   **Backend URL:** `https://baby-adoption-backend.onrender.com`
 
 4. Make sure to set this for **Production**, **Preview**, and **Development** environments
 5. Click **Save**
@@ -73,12 +73,16 @@ VITE_API_BASE_URL=https://baby-adoption-backend.onrender.com
 
 ### Render Environment Variables:
 ```
-CORS_ALLOWED_ORIGINS=https://baby-adoption-frontend.vercel.app,http://localhost:5173
 SPRING_PROFILES_ACTIVE=production
-SPRING_DATASOURCE_URL=jdbc:mysql://[Railway Host]:[Port]/[Database]?useSSL=true&serverTimezone=UTC
-SPRING_DATASOURCE_USERNAME=[Railway Username]
-SPRING_DATASOURCE_PASSWORD=[Railway Password]
+SPRING_DATASOURCE_URL=jdbc:mysql://shortline.proxy.rlwy.net:56487/railway?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&connectTimeout=30000&socketTimeout=60000
+SPRING_DATASOURCE_USERNAME=root
+SPRING_DATASOURCE_PASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
+SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
 ```
+
+**Note:** Replace `https://your-frontend.vercel.app` with your actual Vercel frontend URL.
 
 ## Notes
 

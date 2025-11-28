@@ -11,8 +11,8 @@ const getApiBaseUrl = (): string => {
   
   // Check if we're in production (Vercel deployment)
   if (import.meta.env.PROD) {
-    // Default production URL (update this with your Render backend URL)
-    return 'https://your-backend.onrender.com';
+    // Default production URL - Render backend
+    return 'https://baby-adoption-backend.onrender.com';
   }
   
   // Development: use localhost
