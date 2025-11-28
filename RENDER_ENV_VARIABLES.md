@@ -1,67 +1,103 @@
-# Render Environment Variables Configuration
+# Render Environment Variables Setup
 
-## Required Environment Variables for Render Backend
+## ⚠️ CRITICAL: Set These Environment Variables in Render
 
-Copy and paste these into your Render dashboard → Environment Variables:
+Go to your Render service → **Environment** tab and add these variables:
 
-### Option 1: Using DATABASE_URL (Recommended - Single Variable)
+### Required Variables:
 
 ```
 SPRING_PROFILES_ACTIVE=production
-DATABASE_URL=mysql://root:OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk@shortline.proxy.rlwy.net:56487/railway
+```
+
+```
+SPRING_DATASOURCE_URL=jdbc:mysql://shortline.proxy.rlwy.net:56487/railway?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&connectTimeout=30000&socketTimeout=60000
+```
+
+```
+SPRING_DATASOURCE_USERNAME=root
+```
+
+```
+SPRING_DATASOURCE_PASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
+```
+
+```
 SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+```
+
+```
 SPRING_JPA_HIBERNATE_DDL_AUTO=update
+```
+
+```
 SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
 ```
 
-**Note:** If using DATABASE_URL, you need to convert it to JDBC format. Use Option 2 instead.
+**Replace `https://your-frontend.vercel.app` with your actual Vercel frontend URL**
 
-### Option 2: Using Individual Variables (Recommended)
+## Step-by-Step Instructions:
+
+1. **Go to Render Dashboard**
+   - Visit https://dashboard.render.com
+   - Select your backend service
+
+2. **Navigate to Environment Tab**
+   - Click on **Environment** in the left sidebar
+   - Or go to **Settings** → **Environment Variables**
+
+3. **Add Each Variable**
+   - Click **Add Environment Variable**
+   - Enter the **Key** (variable name)
+   - Enter the **Value** (variable value)
+   - Click **Save Changes**
+
+4. **Important Notes:**
+   - Copy the values EXACTLY as shown above
+   - Don't add extra spaces
+   - Make sure `SPRING_PROFILES_ACTIVE=production` is set
+   - After adding variables, **restart your service**
+
+5. **Restart Service**
+   - Go to **Events** tab
+   - Click **Manual Deploy** → **Deploy latest commit**
+   - Or wait for automatic redeploy
+
+## Troubleshooting:
+
+### If connection still fails:
+
+1. **Check Variable Names:**
+   - Make sure variable names match EXACTLY (case-sensitive)
+   - `SPRING_DATASOURCE_URL` not `SPRING_DATASOURCE_URI`
+
+2. **Check Password:**
+   - Password: `OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk`
+   - No extra spaces before/after
+
+3. **Check Service Restart:**
+   - Environment variables only take effect after restart
+   - Force a new deployment
+
+4. **Check Logs:**
+   - Go to **Logs** tab
+   - Look for connection errors
+   - Verify the connection URL is being used
+
+5. **Verify Railway Database:**
+   - Make sure Railway MySQL is running
+   - Check Railway dashboard for database status
+
+## Alternative: Using Individual Variables
+
+If `SPRING_DATASOURCE_URL` doesn't work, try individual variables:
 
 ```
-SPRING_PROFILES_ACTIVE=production
 MYSQLHOST=shortline.proxy.rlwy.net
 MYSQLPORT=56487
 MYSQLDATABASE=railway
 MYSQLUSER=root
 MYSQLPASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
-SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
 ```
 
-### Option 3: Using Direct JDBC URL
-
-```
-SPRING_PROFILES_ACTIVE=production
-SPRING_DATASOURCE_URL=jdbc:mysql://shortline.proxy.rlwy.net:56487/railway?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true&requireSSL=false
-SPRING_DATASOURCE_USERNAME=root
-SPRING_DATASOURCE_PASSWORD=OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
-SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-SPRING_WEB_CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
-```
-
-## Railway MySQL Connection Details
-
-- **Host:** `shortline.proxy.rlwy.net`
-- **Port:** `56487`
-- **Database:** `railway`
-- **Username:** `root`
-- **Password:** `OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk`
-- **Connection String:** `mysql://root:OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk@shortline.proxy.rlwy.net:56487/railway`
-
-## Important Notes
-
-1. Replace `https://your-frontend.vercel.app` with your actual Vercel frontend URL
-2. `PORT` variable is automatically provided by Render - no need to set it
-3. After setting environment variables, restart your Render service
-4. Check Render logs to verify database connection
-
-## Testing Connection
-
-After deployment, check Render logs for:
-- "Started BabyAdoptionBackendApplication" - Application started successfully
-- No database connection errors
-- Tables created automatically (ddl-auto=update)
-
+But **SPRING_DATASOURCE_URL is recommended** as it's more reliable.
