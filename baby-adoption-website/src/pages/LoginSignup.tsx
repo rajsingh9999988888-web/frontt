@@ -63,6 +63,11 @@ export default function LoginSignup(): React.JSX.Element {
     const params = new URLSearchParams(location.search);
     const nextMode = params.get('mode') === 'signup' ? 'signup' : 'login';
     setMode(nextMode);
+    // Pre-fill email if provided via query string (e.g. after signup)
+    const prefillEmail = params.get('email');
+    if (prefillEmail) {
+      setFormData((prev) => ({ ...prev, email: prefillEmail }));
+    }
   }, [location.search]);
 
   const isSignup = mode === 'signup';
@@ -146,10 +151,9 @@ export default function LoginSignup(): React.JSX.Element {
       }
 
       const derivedRole = data.role || (userType === 'user' ? 'NORMAL' : 'EMPLOYEE');
-      // After signup, redirect user to the login page instead of auto-login
+      // After signup, redirect user to the login page and pre-fill email
       alert('Signed up successfully! Please log in to continue.');
-      // Optionally pre-fill email via query param
-      const loginUrl = `/login-signup`;
+      const loginUrl = `/login-signup?email=${encodeURIComponent(formData.email)}`;
       navigate(loginUrl);
       setFormData(createInitialFormState());
     } catch (err) {
