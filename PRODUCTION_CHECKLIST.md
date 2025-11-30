@@ -240,4 +240,30 @@ Your production setup is now complete!
 - CORS: Configured ✅
 - Environment Variables: Set ✅
 
-Your Baby Adoption Website is live in production!
+Your Baby Adoption Website is live in production! 
+
+---
+
+## Quick Commands
+
+- Trigger a backend redeploy (empty commit):
+```powershell
+git commit --allow-empty -m "ci(deploy): trigger redeploy"
+git push origin main
+```
+
+- Check health endpoint:
+```powershell
+curl -v https://baby-adoption-backend.onrender.com/api/health -i
+```
+
+- Preflight CORS check (replace origin as needed):
+```powershell
+curl -v -H "Origin: https://www.nightsathi.com" -H "Access-Control-Request-Method: GET" -X OPTIONS https://baby-adoption-backend.onrender.com/api/babies -i
+```
+
+- Test API GET:
+```powershell
+curl -v https://baby-adoption-backend.onrender.com/api/babies/babies -i
+```
+
