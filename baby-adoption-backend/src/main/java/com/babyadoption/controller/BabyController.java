@@ -3,6 +3,7 @@ package com.babyadoption.controller;
 import com.babyadoption.model.BabyPost;
 import com.babyadoption.model.BabyPost.PostStatus;
 import io.jsonwebtoken.Jwts;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -1741,7 +1742,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         }
 
         @CrossOrigin(origins = "http://localhost:5173")
-        @PostMapping(value = "/babies", consumes = "multipart/form-data")
+        @PostMapping(value = "/babies", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public BabyPost addBabyPost(
                 @RequestParam String name,
                 @RequestParam String description,
