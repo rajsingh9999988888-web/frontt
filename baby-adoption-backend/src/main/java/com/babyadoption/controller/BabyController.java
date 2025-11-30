@@ -1741,8 +1741,28 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         }
 
         @CrossOrigin(origins = "http://localhost:5173")
-        @PostMapping("/babies")
-        public BabyPost addBabyPost(@RequestBody BabyPost newPost, @RequestHeader("Authorization") String token) {
+        @PostMapping(value = "/babies", consumes = "multipart/form-data")
+        public BabyPost addBabyPost(
+                @RequestParam String name,
+                @RequestParam String description,
+                @RequestParam String phone,
+                @RequestParam String whatsapp,
+                @RequestParam String state,
+                @RequestParam String district,
+                @RequestParam String city,
+                @RequestParam String category,
+                @RequestParam String address,
+                @RequestParam String postalcode,
+                @RequestParam String age,
+                @RequestParam String nickname,
+                @RequestParam String title,
+                @RequestParam String text,
+                @RequestParam String ethnicity,
+                @RequestParam String nationality,
+                @RequestParam String bodytype,
+                @RequestParam String services,
+                @RequestParam String place,
+                @RequestHeader("Authorization") String token) {
                 int userId = getUserIdFromToken(token);
                 if (userId == -1) {
                         throw new RuntimeException("Invalid token");
@@ -1756,26 +1776,26 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                 .orElse(0) + 1;
                 BabyPost postToAdd = new BabyPost(
                                 newId,
-                                newPost.getName(),
-                                newPost.getDescription(),
-                                newPost.getPhone(),
-                                newPost.getWhatsapp(),
-                                newPost.getImageUrl(),
-                                newPost.getState(),
-                                newPost.getDistrict(),
-                                newPost.getCity(),
-                                newPost.getCategory(),
-                                newPost.getAddress(),
-                                newPost.getPostalcode(),
-                                newPost.getAge(),
-                                newPost.getNickname(),
-                                newPost.getTitle(),
-                                newPost.getText(),
-                                newPost.getEthnicity(),
-                                newPost.getNationality(),
-                                newPost.getBodytype(),
-                                newPost.getServices(),
-                                newPost.getPlace(),
+                                name,
+                                description,
+                                phone,
+                                whatsapp,
+                                "", // imageUrl will be handled separately for file uploads
+                                state,
+                                district,
+                                city,
+                                category,
+                                address,
+                                postalcode,
+                                age,
+                                nickname,
+                                title,
+                                text,
+                                ethnicity,
+                                nationality,
+                                bodytype,
+                                services,
+                                place,
                                 LocalDateTime.now(),
                                 PostStatus.PENDING,
                                 userId);
