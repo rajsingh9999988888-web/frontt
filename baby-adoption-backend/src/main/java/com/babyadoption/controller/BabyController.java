@@ -1926,11 +1926,11 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         private boolean canAddPost(String token) {
                 try {
-                        String role = Jwts.parserBuilder().setSigningKey(UserController.SECRET_KEY)
+                        // All authenticated users can add posts
+                        Jwts.parserBuilder().setSigningKey(UserController.SECRET_KEY)
                                         .build()
-                                        .parseClaimsJws(token.replace("Bearer ", "")).getBody()
-                                        .get("role", String.class);
-                        return "ADMIN".equals(role) || "EMPLOYEE".equals(role);
+                                        .parseClaimsJws(token.replace("Bearer ", ""));
+                        return true; // Token is valid, user can add post
                 } catch (Exception e) {
                         return false;
                 }

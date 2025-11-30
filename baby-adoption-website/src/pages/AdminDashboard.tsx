@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config/api';
 
@@ -17,6 +18,7 @@ type PendingPost = {
 
 export default function AdminDashboard() {
   const { token, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -126,6 +128,15 @@ export default function AdminDashboard() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => navigate('/add-post')}
+                className="inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/30"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+                  <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Add Post
+              </button>
               <button
                 onClick={fetchPendingPosts}
                 className="inline-flex items-center gap-2 rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
