@@ -1748,7 +1748,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
 
         @CrossOrigin(origins = "http://localhost:5173")
-        @PostMapping(value = "/babies", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        @PostMapping("/babies")
         public ResponseEntity<?> addBabyPost(
                 @RequestParam String name,
                 @RequestParam String description,
