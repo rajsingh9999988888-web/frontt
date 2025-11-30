@@ -13,7 +13,7 @@ type ContactMethod = 'phone' | 'both' | 'email';
 type MultiSelectKey = 'services' | 'attention' | 'placeOfService';
 
 const fetchOptions = async (path: string): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const response = await fetch(`${API_BASE_URL}/api/babies${path}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${path}`);
   }
@@ -323,7 +323,7 @@ export default function AddPost() {
 
     try {
       setSubmitting(true);
-      const res = await fetch(`${API_BASE_URL}/babies`, {
+      const res = await fetch(`${API_BASE_URL}/api/babies/babies`, {
         method: 'POST',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',

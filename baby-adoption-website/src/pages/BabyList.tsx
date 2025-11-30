@@ -28,7 +28,7 @@ const categoryAccent: Record<string, string> = {
 const vibeIcons = ['💋', '🕯️', '🫦', '🍸', '🖤', '🔥', '🌙', '🪩'];
 
 const fetchOptions = async (path: string): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const response = await fetch(`${API_BASE_URL}/api/babies${path}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${path}`);
   }
@@ -236,7 +236,7 @@ export default function BabyList(): React.JSX.Element {
     setLoading(true);
     setError(null);
     try {
-      const url = new URL(`${API_BASE_URL}/babies`);
+      const url = new URL(`${API_BASE_URL}/api/babies/babies`);
       if (selectedState) url.searchParams.set('state', selectedState);
       if (selectedDistrict) url.searchParams.set('district', selectedDistrict);
       if (selectedCity) url.searchParams.set('city', selectedCity);

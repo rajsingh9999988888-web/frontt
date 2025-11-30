@@ -28,7 +28,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/posts`, {
+      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
 
   const handleApprove = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/posts/${id}/approve`, {
+      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${id}/approve`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
 
   const handleReject = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/posts/${id}/reject`, {
+      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${id}/reject`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
