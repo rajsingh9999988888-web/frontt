@@ -24,4 +24,6 @@ services:
         value: update
       - key: SPRING_WEB_CORS_ALLOWED_ORIGINS
         value: "https://www.nightsathi.com,https://nightsathi.com,https://baby-adoption-website.vercel.app,http://localhost:5173"
+    # Add a health check path so Render can verify the service is healthy after deploy
+    healthCheckPath: /api/health
 
