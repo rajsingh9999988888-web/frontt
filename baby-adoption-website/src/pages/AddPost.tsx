@@ -323,21 +323,39 @@ export default function AddPost() {
 
     try {
       setSubmitting(true);
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch(`${API_BASE_URL}/api/babies/babies`, {
         method: 'POST',
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          // ❌ DO NOT set Content-Type, browser will set multipart boundary
-        },
+        headers,
         body: form,
       });
-      if (!res.ok) throw new Error('Network error');
-      await res.json();
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('Post failed:', res.status, text);
+        if (res.status === 401) {
+          alert('You must be logged in to submit a post');
+          setShowLoginPrompt(true);
+          return;
+        }
+        throw new Error(`Server error ${res.status}`);
+      }
+
+      const created = await res.json();
       alert('Post submitted successfully');
       resetForm();
       setPreviewHTML(null);
       setDistrictList([]);
       setCityList([]);
+
+      // If backend returned the created post with an id, navigate to its detail page
+      if (created && created.id) {
+        navigate(`/baby-detail/${created.id}`);
+      } else {
+        navigate('/baby-list');
+      }
     } catch (err) {
       console.error(err);
       alert('Error submitting post');
