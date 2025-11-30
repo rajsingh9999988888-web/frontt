@@ -6,6 +6,9 @@ import io.jsonwebtoken.Jwts;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -1742,6 +1745,8 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                 .collect(Collectors.toList());
         }
 
+        private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
+
         @CrossOrigin(origins = "http://localhost:5173")
         @PostMapping(value = "/babies", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<?> addBabyPost(
@@ -1765,8 +1770,21 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 @RequestParam String services,
                 @RequestParam String place,
                 @RequestParam(required = false) MultipartFile[] images,
-                @RequestHeader("Authorization") String token) {
+                @RequestHeader("Authorization") String token,
+                HttpServletRequest request) {
                 try {
+                        // Log incoming request content type and some headers for debugging
+                        String ct = request.getContentType();
+                        StringBuilder hdrs = new StringBuilder();
+                        var names = request.getHeaderNames();
+                        if (names != null) {
+                                while (names.hasMoreElements()) {
+                                        String hn = names.nextElement();
+                                        hdrs.append(hn).append("=").append(request.getHeader(hn)).append("; ");
+                                }
+                        }
+                        logger.info("Incoming POST /babies contentType={} headers={}", ct, hdrs.toString());
+
                         // Token/user validation
                         int userId = getUserIdFromToken(token);
                         if (userId == -1) {
