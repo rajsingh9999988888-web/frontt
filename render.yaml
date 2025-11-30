@@ -23,5 +23,5 @@ services:
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: SPRING_WEB_CORS_ALLOWED_ORIGINS
-        sync: false
+        value: "https://www.nightsathi.com,https://nightsathi.com,https://baby-adoption-website.vercel.app,http://localhost:5173"
 
