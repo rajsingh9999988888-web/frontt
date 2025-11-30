@@ -146,13 +146,11 @@ export default function LoginSignup(): React.JSX.Element {
       }
 
       const derivedRole = data.role || (userType === 'user' ? 'NORMAL' : 'EMPLOYEE');
-      login({ email: formData.email, role: derivedRole }, data.token);
-      alert('Signed up successfully!');
-      const destination = redirectPath || getDefaultDashboard(derivedRole);
-      navigate(destination);
-      if (redirectPath) {
-        clearRedirectPath();
-      }
+      // After signup, redirect user to the login page instead of auto-login
+      alert('Signed up successfully! Please log in to continue.');
+      // Optionally pre-fill email via query param
+      const loginUrl = `/login-signup`;
+      navigate(loginUrl);
       setFormData(createInitialFormState());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
