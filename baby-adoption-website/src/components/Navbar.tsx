@@ -141,19 +141,18 @@ export default function Navbar(): React.JSX.Element {
             ))}
 
             <div className="flex items-center gap-3">
-              {(!isLoggedIn || (isLoggedIn && !isAdmin())) && (
-                <button
-                  type="button"
-                  onClick={handleNavSelection(handleAddPostClick)}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#ff4f70] px-4 py-1.5 text-sm font-semibold text-[#ffffff] transition hover:border-[#ff4f70] hover:text-[#ff4f70] dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-[#ff4f70]/70 dark:hover:text-[#ff4f70]"
-                  style={{ animation: 'navEaseIn 1.45s cubic-bezier(0.16, 1, 0.3, 1) forwards', animationDelay: `${filterLinks().length * 220}ms`, opacity: 0 }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-                  </svg>
-                  POST YOUR ADD
-                </button>
-              )}
+              {/* Always show Add Post button to improve discoverability */}
+              <button
+                type="button"
+                onClick={handleNavSelection(handleAddPostClick)}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#ff4f70] px-4 py-1.5 text-sm font-semibold text-[#ffffff] transition hover:border-[#ff4f70] hover:text-[#ff4f70] dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-[#ff4f70]/70 dark:hover:text-[#ff4f70]"
+                style={{ animation: 'navEaseIn 1.45s cubic-bezier(0.16, 1, 0.3, 1) forwards', animationDelay: `${filterLinks().length * 220}ms`, opacity: 0 }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+                </svg>
+                POST YOUR ADD
+              </button>
               {isLoggedIn ? (
                 <div className="relative" style={{ animation: 'navEaseIn 1.45s cubic-bezier(0.16, 1, 0.3, 1) forwards', animationDelay: `${(filterLinks().length + 1) * 220}ms`, opacity: 0 }}>
                   <button
@@ -243,6 +242,21 @@ export default function Navbar(): React.JSX.Element {
                   {label}
                 </NavLink>
               ))}
+
+              {/* Mobile: Add Post CTA */}
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={handleNavSelection(handleAddPostClick)}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-2 font-semibold text-slate-700 hover:border-[#ff4f70] hover:text-[#ff4f70] dark:border-slate-600 dark:text-slate-200"
+                  style={{ animation: 'navEaseIn 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards', animationDelay: `${(filterLinks().length + 1) * 180}ms`, opacity: 0 }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+                  </svg>
+                  Post your add
+                </button>
+              </div>
 
               {isLoggedIn ? (
                 <>
