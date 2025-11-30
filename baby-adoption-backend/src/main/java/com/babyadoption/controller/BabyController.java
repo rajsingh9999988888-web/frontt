@@ -5,6 +5,7 @@ import com.babyadoption.model.BabyPost.PostStatus;
 import io.jsonwebtoken.Jwts;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -1743,18 +1744,18 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         @CrossOrigin(origins = "http://localhost:5173")
         @PostMapping(value = "/babies", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        public BabyPost addBabyPost(
+        public ResponseEntity<?> addBabyPost(
                 @RequestParam String name,
                 @RequestParam String description,
                 @RequestParam String phone,
-                @RequestParam String whatsapp,
+                @RequestParam(required = false) String whatsapp,
                 @RequestParam String state,
                 @RequestParam String district,
                 @RequestParam String city,
                 @RequestParam String category,
                 @RequestParam String address,
                 @RequestParam String postalcode,
-                @RequestParam String age,
+                @RequestParam(required = false) String age,
                 @RequestParam String nickname,
                 @RequestParam String title,
                 @RequestParam String text,
@@ -1763,45 +1764,64 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 @RequestParam String bodytype,
                 @RequestParam String services,
                 @RequestParam String place,
+                @RequestParam(required = false) MultipartFile[] images,
                 @RequestHeader("Authorization") String token) {
-                int userId = getUserIdFromToken(token);
-                if (userId == -1) {
-                        throw new RuntimeException("Invalid token");
+                try {
+                        // Token/user validation
+                        int userId = getUserIdFromToken(token);
+                        if (userId == -1) {
+                                return ResponseEntity.status(401).body("Invalid token");
+                        }
+                        if (!canAddPost(token)) {
+                                return ResponseEntity.status(403).body("Access denied: Only employees and admins can add posts");
+                        }
+
+                        int newId = babyPosts.stream()
+                                        .mapToInt(BabyPost::getId)
+                                        .max()
+                                        .orElse(0) + 1;
+
+                        int ageInt = 0;
+                        if (age != null && !age.trim().isEmpty()) {
+                                try {
+                                        ageInt = Integer.parseInt(age.trim());
+                                } catch (NumberFormatException nfe) {
+                                        return ResponseEntity.badRequest().body("Invalid age value");
+                                }
+                        }
+
+                        BabyPost postToAdd = new BabyPost(
+                                        newId,
+                                        name,
+                                        description,
+                                        phone,
+                                        whatsapp == null ? "" : whatsapp,
+                                        "", // imageUrl will be handled separately for file uploads
+                                        state,
+                                        district,
+                                        city,
+                                        category,
+                                        address,
+                                        postalcode,
+                                        ageInt,
+                                        nickname,
+                                        title,
+                                        text,
+                                        ethnicity,
+                                        nationality,
+                                        bodytype,
+                                        services,
+                                        place,
+                                        LocalDateTime.now(),
+                                        PostStatus.PENDING,
+                                        userId);
+
+                        // TODO: handle `images` (save to storage and set imageUrl)
+                        babyPosts.add(postToAdd);
+                        return ResponseEntity.ok(postToAdd);
+                } catch (Exception ex) {
+                        return ResponseEntity.status(500).body("Server error: " + ex.getMessage());
                 }
-                if (!canAddPost(token)) {
-                        throw new RuntimeException("Access denied: Only employees and admins can add posts");
-                }
-                int newId = babyPosts.stream()
-                                .mapToInt(BabyPost::getId)
-                                .max()
-                                .orElse(0) + 1;
-                BabyPost postToAdd = new BabyPost(
-                                newId,
-                                name,
-                                description,
-                                phone,
-                                whatsapp,
-                                "", // imageUrl will be handled separately for file uploads
-                                state,
-                                district,
-                                city,
-                                category,
-                                address,
-                                postalcode,
-                                Integer.parseInt(age),
-                                nickname,
-                                title,
-                                text,
-                                ethnicity,
-                                nationality,
-                                bodytype,
-                                services,
-                                place,
-                                LocalDateTime.now(),
-                                PostStatus.PENDING,
-                                userId);
-                babyPosts.add(postToAdd);
-                return postToAdd;
         }
 
         @CrossOrigin(origins = "http://localhost:5173")
