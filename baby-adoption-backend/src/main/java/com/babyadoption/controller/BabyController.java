@@ -1853,7 +1853,10 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         @CrossOrigin(origins = "http://localhost:5173")
         @GetMapping("/admin/posts")
-        public ResponseEntity<?> getPendingPosts(@RequestHeader("Authorization") String token) {
+        public ResponseEntity<?> getPendingPosts(@RequestHeader(value = "Authorization", required = false) String token) {
+                if (token == null || token.trim().isEmpty()) {
+                        return ResponseEntity.status(401).body("Missing Authorization header");
+                }
                 if (!isAdmin(token)) {
                         return ResponseEntity.status(403).body("Access denied");
                 }
@@ -1865,7 +1868,10 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         @CrossOrigin(origins = "http://localhost:5173")
         @PutMapping("/admin/posts/{id}/approve")
-        public ResponseEntity<?> approvePost(@PathVariable int id, @RequestHeader("Authorization") String token) {
+        public ResponseEntity<?> approvePost(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String token) {
+                if (token == null || token.trim().isEmpty()) {
+                        return ResponseEntity.status(401).body("Missing Authorization header");
+                }
                 if (!isAdmin(token)) {
                         return ResponseEntity.status(403).body("Access denied");
                 }
@@ -1880,7 +1886,10 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         @CrossOrigin(origins = "http://localhost:5173")
         @PutMapping("/admin/posts/{id}/reject")
-        public ResponseEntity<?> rejectPost(@PathVariable int id, @RequestHeader("Authorization") String token) {
+        public ResponseEntity<?> rejectPost(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String token) {
+                if (token == null || token.trim().isEmpty()) {
+                        return ResponseEntity.status(401).body("Missing Authorization header");
+                }
                 if (!isAdmin(token)) {
                         return ResponseEntity.status(403).body("Access denied");
                 }

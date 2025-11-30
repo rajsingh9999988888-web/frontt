@@ -93,7 +93,10 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUsers(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return ResponseEntity.status(401).body("Missing Authorization header");
+        }
         if (!isAdmin(token)) {
             return ResponseEntity.status(403).body("Access denied");
         }
@@ -102,7 +105,10 @@ public class UserController {
 
     @PutMapping("/{id}/role")
     public ResponseEntity<?> updateRole(@PathVariable("id") Integer id, @RequestBody RoleUpdateRequest request,
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return ResponseEntity.status(401).body("Missing Authorization header");
+        }
         if (!isAdmin(token)) {
             return ResponseEntity.status(403).body("Access denied");
         }
