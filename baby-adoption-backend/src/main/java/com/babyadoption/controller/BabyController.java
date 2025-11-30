@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173") // Adjust port if frontend runs on different port
+@RequestMapping("/api/babies")
 public class BabyController {
 
         private static final List<String> states = Arrays.asList(
