@@ -9,6 +9,7 @@ import BabyList from './pages/BabyList';
 import BabyDetail from './pages/BabyDetail';
 import LoginSignup from './pages/LoginSignup';
 import AdminDashboard from './pages/AdminDashboard';
+import FloatingAddButton from './components/FloatingAddButton';
 import UserDashboard from './pages/UserDashboard';
 import AccountSettings from './pages/AccountSettings';
 import Coupons from './pages/Coupons';
@@ -83,6 +84,7 @@ export default function App(): React.JSX.Element {
           <Route path="/my-ads" element={<ProtectedRoute><UserAds /></ProtectedRoute>} />
         </Routes>
       </main>
+      <FloatingAddButton />
       <Footer />
     </div>
   );
