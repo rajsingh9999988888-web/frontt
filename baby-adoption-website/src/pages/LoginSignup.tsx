@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
@@ -164,7 +165,12 @@ export default function LoginSignup(): React.JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-16 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+    <>
+      <Helmet>
+        <title>Login / Signup — BabyAdopt</title>
+        <meta name="description" content="Login or create an account on BabyAdopt to publish and manage your adoption listings." />
+      </Helmet>
+      <div className="min-h-screen bg-slate-100 px-4 py-16 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto w-full max-w-3xl space-y-10">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.5em] text-[#ff4f70]">BabyAdopt Access</p>

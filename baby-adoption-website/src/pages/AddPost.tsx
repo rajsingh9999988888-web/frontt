@@ -1,4 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config/api';
@@ -370,7 +371,12 @@ export default function AddPost() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-12 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+    <>
+      <Helmet>
+        <title>Post an adoption listing — BabyAdopt</title>
+        <meta name="description" content="Create a new adoption listing on BabyAdopt. Add images, description, and contact details to reach potential adoptive parents." />
+      </Helmet>
+      <div className="min-h-screen bg-slate-100 px-4 py-12 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-xl shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-900/80">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Required fields marked with *</p>

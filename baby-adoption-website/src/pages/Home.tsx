@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 
 type FeaturedCategory = {
@@ -157,7 +158,14 @@ export default function Home(): React.JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+    <>
+      <Helmet>
+        <title>BabyAdopt — Browse adoption listings</title>
+        <meta name="description" content="Browse verified adoption listings and connect with adoptive parents. Search by city, category and more on BabyAdopt." />
+        <meta property="og:title" content="BabyAdopt — Browse adoption listings" />
+        <meta property="og:description" content="Browse verified adoption listings and connect with adoptive parents on BabyAdopt." />
+      </Helmet>
+      <div className="min-h-screen bg-[#f6f7fb] text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
       <section className="relative min-h-[90vh] overflow-hidden border-b border-slate-200 bg-slate-900 text-white transition-colors duration-300 dark:border-slate-800">
         <div className="absolute inset-0">
           <picture className="block h-full w-full">

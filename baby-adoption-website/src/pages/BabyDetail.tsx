@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
 
@@ -163,6 +164,12 @@ export default function BabyDetail() {
 
   return (
     <PageShell>
+      <Helmet>
+        <title>{baby ? `${baby.name} — BabyAdopt` : 'BabyAdopt — Profile'}</title>
+        <meta name="description" content={baby ? (baby.description || baby.text || 'View profile on BabyAdopt') : 'View profile on BabyAdopt'} />
+        <meta property="og:title" content={baby ? `${baby.name} — BabyAdopt` : 'BabyAdopt — Profile'} />
+        <meta property="og:description" content={baby ? (baby.description || baby.text || 'View profile on BabyAdopt') : 'View profile on BabyAdopt'} />
+      </Helmet>
       <article className="rounded-[2rem] border border-slate-200/70 bg-white/95 p-6 shadow-2xl shadow-slate-900/5 ring-1 ring-white/60 transition dark:border-slate-800/70 dark:bg-slate-900/80 dark:shadow-slate-900/40 dark:ring-slate-900/40 sm:p-10">
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">
           <span>Baby profile</span>
