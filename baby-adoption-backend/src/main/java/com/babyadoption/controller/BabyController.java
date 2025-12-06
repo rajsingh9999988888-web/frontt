@@ -1747,7 +1747,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
 
-        @CrossOrigin(origins = "http://localhost:5173")
         @PostMapping("/babies")
         public ResponseEntity<?> addBabyPost(
                 @RequestParam String name,
@@ -1770,7 +1769,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 @RequestParam String services,
                 @RequestParam String place,
                 @RequestParam(required = false) MultipartFile[] images,
-                @RequestHeader("Authorization") String token,
+                @RequestHeader(value = "Authorization", required = false) String token,
                 HttpServletRequest request) {
                 try {
                         // Log incoming request content type and some headers for debugging
@@ -1786,6 +1785,9 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         logger.info("Incoming POST /babies contentType={} headers={}", ct, hdrs.toString());
 
                         // Token/user validation
+                        if (token == null || token.trim().isEmpty()) {
+                                return ResponseEntity.status(401).body("Missing Authorization header");
+                        }
                         int userId = getUserIdFromToken(token);
                         if (userId == -1) {
                                 return ResponseEntity.status(401).body("Invalid token");
