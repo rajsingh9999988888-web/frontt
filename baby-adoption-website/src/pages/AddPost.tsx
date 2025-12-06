@@ -338,9 +338,14 @@ export default function AddPost() {
         if (res.status === 401) {
           alert('You must be logged in to submit a post');
           setShowLoginPrompt(true);
+          setSubmitting(false);
           return;
         }
-        throw new Error(`Server error ${res.status}`);
+        // Show server response (if any) to help debugging
+        const serverMsg = text && text.length ? text : `Server error ${res.status}`;
+        alert(`Error submitting post: ${serverMsg}`);
+        setSubmitting(false);
+        return;
       }
 
       const created = await res.json();
