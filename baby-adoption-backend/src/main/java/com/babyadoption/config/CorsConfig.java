@@ -18,10 +18,12 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         
-        // Production and development frontend origins
+        // Production frontend origins (nightsathi.com - LIVE)
         config.addAllowedOrigin("https://www.nightsathi.com");
         config.addAllowedOrigin("https://nightsathi.com");
         config.addAllowedOrigin("https://baby-adoption-website.vercel.app");
+        
+        // Development origins (for local testing)
         config.addAllowedOrigin("http://localhost:5173");
         config.addAllowedOrigin("http://localhost:5174");
         config.addAllowedOrigin("http://localhost:3000");
