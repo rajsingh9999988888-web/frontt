@@ -33,15 +33,24 @@ public class BabyController {
         private final BabyPostRepository babyPostRepository;
         private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
         private static final String UPLOAD_DIR = "uploads";
-        private static final String BACKEND_BASE_URL = "https://baby-adoption-backend.onrender.com";
+        private final String backendBaseUrl;
 
         public BabyController(BabyPostRepository babyPostRepository) {
                 this.babyPostRepository = babyPostRepository;
+                // Get backend URL from environment variable or use default
+                this.backendBaseUrl = System.getenv("BACKEND_BASE_URL") != null 
+                        ? System.getenv("BACKEND_BASE_URL")
+                        : "https://baby-adoption-backend.onrender.com";
+                logger.info("Backend base URL configured as: {}", this.backendBaseUrl);
+                
                 // Create uploads directory if it doesn't exist
                 try {
                         Path uploadPath = Paths.get(UPLOAD_DIR);
                         if (!Files.exists(uploadPath)) {
                                 Files.createDirectories(uploadPath);
+                                logger.info("Created uploads directory: {}", uploadPath.toAbsolutePath());
+                        } else {
+                                logger.info("Uploads directory already exists: {}", uploadPath.toAbsolutePath());
                         }
                 } catch (IOException e) {
                         logger.error("Failed to create uploads directory", e);
@@ -1842,32 +1851,56 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         // Handle image uploads
                         String imageUrl = "";
                         if (images != null && images.length > 0 && !images[0].isEmpty()) {
+                                logger.info("Processing image upload. Images count: {}", images.length);
                                 try {
                                         // Save the first image
                                         MultipartFile firstImage = images[0];
                                         String originalFilename = firstImage.getOriginalFilename();
+                                        logger.info("Original filename: {}, Size: {} bytes", originalFilename, firstImage.getSize());
+                                        
                                         String extension = "";
                                         if (originalFilename != null && originalFilename.contains(".")) {
                                                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                                         }
                                         String uniqueFilename = UUID.randomUUID().toString() + extension;
-                                        Path filePath = Paths.get(UPLOAD_DIR, uniqueFilename);
+                                        Path filePath = Paths.get(UPLOAD_DIR, uniqueFilename).toAbsolutePath();
+                                        
+                                        // Ensure uploads directory exists
+                                        Path uploadPath = Paths.get(UPLOAD_DIR);
+                                        if (!Files.exists(uploadPath)) {
+                                                Files.createDirectories(uploadPath);
+                                                logger.info("Created uploads directory during request: {}", uploadPath.toAbsolutePath());
+                                        }
+                                        
                                         Files.copy(firstImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                                        logger.info("Image file saved to: {}", filePath);
                                         
                                         // Set imageUrl to the first image
-                                        imageUrl = BACKEND_BASE_URL + "/api/babies/images/" + uniqueFilename;
+                                        imageUrl = backendBaseUrl + "/api/babies/images/" + uniqueFilename;
                                         postToAdd.setImageUrl(imageUrl);
-                                        logger.info("Image saved: {}", imageUrl);
+                                        logger.info("Image URL set: {}", imageUrl);
                                 } catch (IOException e) {
-                                        logger.error("Failed to save image", e);
-                                        return ResponseEntity.status(500).body("Failed to save image: " + e.getMessage());
+                                        logger.error("Failed to save image: {}", e.getMessage(), e);
+                                        // Continue without image rather than failing the entire post
+                                        postToAdd.setImageUrl("");
+                                } catch (Exception e) {
+                                        logger.error("Unexpected error during image processing: {}", e.getMessage(), e);
+                                        postToAdd.setImageUrl("");
                                 }
+                        } else {
+                                logger.info("No images provided in request");
+                                postToAdd.setImageUrl("");
                         }
 
+                        logger.info("Saving post to database. Name: {}, ImageUrl: {}", postToAdd.getName(), postToAdd.getImageUrl());
                         BabyPost savedPost = babyPostRepository.save(postToAdd);
+                        logger.info("Post saved successfully with ID: {}", savedPost.getId());
                         return ResponseEntity.ok(savedPost);
                 } catch (Exception ex) {
-                        return ResponseEntity.status(500).body("Server error: " + ex.getMessage());
+                        logger.error("Error in addBabyPost endpoint: {}", ex.getMessage(), ex);
+                        // Log stack trace for debugging
+                        ex.printStackTrace();
+                        return ResponseEntity.status(500).body("Server error: " + ex.getMessage() + ". Check server logs for details.");
                 }
         }
 
