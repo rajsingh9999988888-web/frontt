@@ -59,7 +59,7 @@ function AdminRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login-signup" />;
   }
 
-  return <>{children}</>;
+  return <React.Fragment>{children}</React.Fragment>;
 }
 
 export default function App(): React.JSX.Element {

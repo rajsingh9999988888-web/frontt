@@ -158,7 +158,7 @@ export default function Home(): React.JSX.Element {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>BabyAdopt — Browse adoption listings</title>
         <meta name="description" content="Browse verified adoption listings and connect with adoptive parents. Search by city, category and more on BabyAdopt." />
@@ -443,6 +443,6 @@ export default function Home(): React.JSX.Element {
         </div>
       )}
     </div>
-    </>
+    </React.Fragment>
   );
 }
