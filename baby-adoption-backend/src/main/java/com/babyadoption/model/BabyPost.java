@@ -1,41 +1,91 @@
 package com.babyadoption.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "baby_posts")
 public class BabyPost {
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(nullable = false, length = 255)
     private String name;
+    
+    @Column(length = 1000)
     private String description;
+    
+    @Column(length = 20)
     private String phone;
+    
+    @Column(length = 20)
     private String whatsapp;
+    
+    @Column(length = 500)
     private String imageUrl;
+    
+    @Column(length = 100)
     private String state;
+    
+    @Column(length = 100)
     private String district;
+    
+    @Column(length = 100)
     private String city;
+    
+    @Column(length = 100)
     private String category;
+    
+    @Column(length = 500)
     private String address;
+    
+    @Column(length = 20)
     private String postalcode;
-    private int age;
+    
+    private Integer age;
+    
+    @Column(length = 100)
     private String nickname;
+    
+    @Column(length = 255)
     private String title;
+    
+    @Column(length = 2000)
     private String text;
+    
+    @Column(length = 100)
     private String ethnicity;
+    
+    @Column(length = 100)
     private String nationality;
+    
+    @Column(length = 100)
     private String bodytype;
+    
+    @Column(length = 500)
     private String services;
+    
+    @Column(length = 500)
     private String place;
+    
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private PostStatus status;
-    private int userId;
+    
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
 
     public enum PostStatus {
         PENDING, APPROVED, EXPIRED
     }
 
-    public BabyPost(int id, String name, String description, String phone, String whatsapp, String imageUrl,
-            String state, String district, String city, String category, String address, String postalcode, int age,
+    public BabyPost(Integer id, String name, String description, String phone, String whatsapp, String imageUrl,
+            String state, String district, String city, String category, String address, String postalcode, Integer age,
             String nickname, String title, String text, String ethnicity, String nationality, String bodytype,
-            String services, String place, LocalDateTime createdAt, PostStatus status, int userId) {
+            String services, String place, LocalDateTime createdAt, PostStatus status, Integer userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -67,7 +117,7 @@ public class BabyPost {
     }
 
     // Getters
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -115,7 +165,7 @@ public class BabyPost {
         return postalcode;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
@@ -152,7 +202,7 @@ public class BabyPost {
     }
 
     // Setters
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -200,7 +250,7 @@ public class BabyPost {
         this.postalcode = postalcode;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
@@ -252,11 +302,11 @@ public class BabyPost {
         this.status = status;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 }

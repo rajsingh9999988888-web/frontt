@@ -2,8 +2,8 @@ package com.babyadoption.controller;
 
 import com.babyadoption.model.BabyPost;
 import com.babyadoption.model.BabyPost.PostStatus;
+import com.babyadoption.repository.BabyPostRepository;
 import io.jsonwebtoken.Jwts;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +19,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/babies")
 public class BabyController {
 
+        private final BabyPostRepository babyPostRepository;
+        private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
+
+        public BabyController(BabyPostRepository babyPostRepository) {
+                this.babyPostRepository = babyPostRepository;
+        }
+
         private static final List<String> states = Arrays.asList(
                         "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
                         "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
@@ -28,25 +35,9 @@ public class BabyController {
 
         private static final Map<String, List<String>> districts = new HashMap<>();
         private static final Map<String, List<String>> cities = new HashMap<>();
-        private static final List<BabyPost> babyPosts = new ArrayList<>();
 
         static {
                 initializeDistrictsAndCities();
-
-                // Sample baby posts with state, district, city info
-                babyPosts.add(new BabyPost(1, "Baby 1", "Lovely baby girl 1", "1111111111", "1111111111",
-                                "https://i.postimg.cc/KzN4zW1m/pexels-pixabay-459957.jpg", "Andhra Pradesh",
-                                "Anantapur", "Anantapur",
-                                "Call Girls", "Address 1", "123456", 25, "Nick1", "Title1", "Text1", "Indian", "Indian",
-                                "Slim",
-                                "Service1", "Place1", LocalDateTime.now().minusDays(5), PostStatus.APPROVED, 1));
-                babyPosts.add(new BabyPost(2, "Baby 2", "Lovely baby girl 2", "2222222222", "2222222222",
-                                "https://i.postimg.cc/KzN4zW1m/pexels-pixabay-459957.jpg", "Andhra Pradesh", "Chittoor",
-                                "Tirupati",
-                                "Other", "Address 2", "654321", 30, "Nick2", "Title2", "Text2", "Other", "Other",
-                                "Medium", "Service2",
-                                "Place2", LocalDateTime.now().minusDays(10), PostStatus.EXPIRED, 2));
-                // Add more baby posts as needed
         }
 
         private static void initializeDistrictsAndCities() {
@@ -1734,8 +1725,8 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         public List<BabyPost> getBabies(@RequestParam(required = false) String state,
                         @RequestParam(required = false) String district,
                         @RequestParam(required = false) String city) {
-                return babyPosts.stream()
-                                .filter(b -> b.getStatus() == PostStatus.APPROVED) // Only show approved posts
+                List<BabyPost> allApproved = babyPostRepository.findByStatus(PostStatus.APPROVED);
+                return allApproved.stream()
                                 .filter(b -> b.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7))) // Not expired
                                 .filter(b -> (state == null || state.isEmpty() || b.getState().equals(state)) &&
                                                 (district == null || district.isEmpty()
@@ -1744,8 +1735,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                                 (city == null || city.isEmpty() || b.getCity().equals(city)))
                                 .collect(Collectors.toList());
         }
-
-        private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
 
         @PostMapping("/babies")
         public ResponseEntity<?> addBabyPost(
@@ -1796,12 +1785,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                 return ResponseEntity.status(403).body("Access denied: Only employees and admins can add posts");
                         }
 
-                        int newId = babyPosts.stream()
-                                        .mapToInt(BabyPost::getId)
-                                        .max()
-                                        .orElse(0) + 1;
-
-                        int ageInt = 0;
+                        Integer ageInt = 0;
                         if (age != null && !age.trim().isEmpty()) {
                                 try {
                                         ageInt = Integer.parseInt(age.trim());
@@ -1810,35 +1794,34 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                 }
                         }
 
-                        BabyPost postToAdd = new BabyPost(
-                                        newId,
-                                        name,
-                                        description,
-                                        phone,
-                                        whatsapp == null ? "" : whatsapp,
-                                        "", // imageUrl will be handled separately for file uploads
-                                        state,
-                                        district,
-                                        city,
-                                        category,
-                                        address,
-                                        postalcode,
-                                        ageInt,
-                                        nickname,
-                                        title,
-                                        text,
-                                        ethnicity,
-                                        nationality,
-                                        bodytype,
-                                        services,
-                                        place,
-                                        LocalDateTime.now(),
-                                        PostStatus.PENDING,
-                                        userId);
+                        BabyPost postToAdd = new BabyPost();
+                        postToAdd.setName(name);
+                        postToAdd.setDescription(description);
+                        postToAdd.setPhone(phone);
+                        postToAdd.setWhatsapp(whatsapp == null ? "" : whatsapp);
+                        postToAdd.setImageUrl(""); // imageUrl will be handled separately for file uploads
+                        postToAdd.setState(state);
+                        postToAdd.setDistrict(district);
+                        postToAdd.setCity(city);
+                        postToAdd.setCategory(category);
+                        postToAdd.setAddress(address);
+                        postToAdd.setPostalcode(postalcode);
+                        postToAdd.setAge(ageInt);
+                        postToAdd.setNickname(nickname);
+                        postToAdd.setTitle(title);
+                        postToAdd.setText(text);
+                        postToAdd.setEthnicity(ethnicity);
+                        postToAdd.setNationality(nationality);
+                        postToAdd.setBodytype(bodytype);
+                        postToAdd.setServices(services);
+                        postToAdd.setPlace(place);
+                        postToAdd.setCreatedAt(LocalDateTime.now());
+                        postToAdd.setStatus(PostStatus.PENDING);
+                        postToAdd.setUserId(userId);
 
                         // TODO: handle `images` (save to storage and set imageUrl)
-                        babyPosts.add(postToAdd);
-                        return ResponseEntity.ok(postToAdd);
+                        BabyPost savedPost = babyPostRepository.save(postToAdd);
+                        return ResponseEntity.ok(savedPost);
                 } catch (Exception ex) {
                         return ResponseEntity.status(500).body("Server error: " + ex.getMessage());
                 }
@@ -1846,11 +1829,10 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         @CrossOrigin(origins = "http://localhost:5173")
         @GetMapping("/babies/{id}")
-        public BabyPost getBabyById(@PathVariable int id) {
-                return babyPosts.stream()
-                                .filter(b -> b.getId() == id)
-                                .findFirst()
-                                .orElse(null);
+        public ResponseEntity<BabyPost> getBabyById(@PathVariable Integer id) {
+                Optional<BabyPost> post = babyPostRepository.findById(id);
+                return post.map(ResponseEntity::ok)
+                                .orElse(ResponseEntity.notFound().build());
         }
 
         @CrossOrigin(origins = "http://localhost:5173")
@@ -1862,24 +1844,24 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 if (!isAdmin(token)) {
                         return ResponseEntity.status(403).body("Access denied");
                 }
-                List<BabyPost> pendingPosts = babyPosts.stream()
-                                .filter(b -> b.getStatus() == PostStatus.PENDING)
-                                .collect(Collectors.toList());
+                List<BabyPost> pendingPosts = babyPostRepository.findByStatus(PostStatus.PENDING);
                 return ResponseEntity.ok(pendingPosts);
         }
 
         @CrossOrigin(origins = "http://localhost:5173")
         @PutMapping("/admin/posts/{id}/approve")
-        public ResponseEntity<?> approvePost(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String token) {
+        public ResponseEntity<?> approvePost(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
                         return ResponseEntity.status(401).body("Missing Authorization header");
                 }
                 if (!isAdmin(token)) {
                         return ResponseEntity.status(403).body("Access denied");
                 }
-                Optional<BabyPost> post = babyPosts.stream().filter(b -> b.getId() == id).findFirst();
+                Optional<BabyPost> post = babyPostRepository.findById(id);
                 if (post.isPresent()) {
-                        post.get().setStatus(PostStatus.APPROVED);
+                        BabyPost babyPost = post.get();
+                        babyPost.setStatus(PostStatus.APPROVED);
+                        babyPostRepository.save(babyPost);
                         return ResponseEntity.ok("Post approved");
                 } else {
                         return ResponseEntity.notFound().build();
@@ -1888,16 +1870,16 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
 
         @CrossOrigin(origins = "http://localhost:5173")
         @PutMapping("/admin/posts/{id}/reject")
-        public ResponseEntity<?> rejectPost(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String token) {
+        public ResponseEntity<?> rejectPost(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
                         return ResponseEntity.status(401).body("Missing Authorization header");
                 }
                 if (!isAdmin(token)) {
                         return ResponseEntity.status(403).body("Access denied");
                 }
-                Optional<BabyPost> post = babyPosts.stream().filter(b -> b.getId() == id).findFirst();
+                Optional<BabyPost> post = babyPostRepository.findById(id);
                 if (post.isPresent()) {
-                        babyPosts.remove(post.get());
+                        babyPostRepository.delete(post.get());
                         return ResponseEntity.ok("Post rejected");
                 } else {
                         return ResponseEntity.notFound().build();
