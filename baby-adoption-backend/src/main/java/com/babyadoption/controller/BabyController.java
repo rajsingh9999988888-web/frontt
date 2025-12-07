@@ -4,16 +4,27 @@ import com.babyadoption.model.BabyPost;
 import com.babyadoption.model.BabyPost.PostStatus;
 import com.babyadoption.repository.BabyPostRepository;
 import io.jsonwebtoken.Jwts;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/babies")
@@ -21,9 +32,20 @@ public class BabyController {
 
         private final BabyPostRepository babyPostRepository;
         private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
+        private static final String UPLOAD_DIR = "uploads";
+        private static final String BACKEND_BASE_URL = "https://baby-adoption-backend.onrender.com";
 
         public BabyController(BabyPostRepository babyPostRepository) {
                 this.babyPostRepository = babyPostRepository;
+                // Create uploads directory if it doesn't exist
+                try {
+                        Path uploadPath = Paths.get(UPLOAD_DIR);
+                        if (!Files.exists(uploadPath)) {
+                                Files.createDirectories(uploadPath);
+                        }
+                } catch (IOException e) {
+                        logger.error("Failed to create uploads directory", e);
+                }
         }
 
         private static final List<String> states = Arrays.asList(
@@ -1798,7 +1820,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         postToAdd.setDescription(description);
                         postToAdd.setPhone(phone);
                         postToAdd.setWhatsapp(whatsapp == null ? "" : whatsapp);
-                        postToAdd.setImageUrl(""); // imageUrl will be handled separately for file uploads
                         postToAdd.setState(state);
                         postToAdd.setDistrict(district);
                         postToAdd.setCity(city);
@@ -1818,7 +1839,31 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         postToAdd.setStatus(PostStatus.PENDING);
                         postToAdd.setUserId(userId);
 
-                        // TODO: handle `images` (save to storage and set imageUrl)
+                        // Handle image uploads
+                        String imageUrl = "";
+                        if (images != null && images.length > 0 && !images[0].isEmpty()) {
+                                try {
+                                        // Save the first image
+                                        MultipartFile firstImage = images[0];
+                                        String originalFilename = firstImage.getOriginalFilename();
+                                        String extension = "";
+                                        if (originalFilename != null && originalFilename.contains(".")) {
+                                                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                                        }
+                                        String uniqueFilename = UUID.randomUUID().toString() + extension;
+                                        Path filePath = Paths.get(UPLOAD_DIR, uniqueFilename);
+                                        Files.copy(firstImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                                        
+                                        // Set imageUrl to the first image
+                                        imageUrl = BACKEND_BASE_URL + "/api/babies/images/" + uniqueFilename;
+                                        postToAdd.setImageUrl(imageUrl);
+                                        logger.info("Image saved: {}", imageUrl);
+                                } catch (IOException e) {
+                                        logger.error("Failed to save image", e);
+                                        return ResponseEntity.status(500).body("Failed to save image: " + e.getMessage());
+                                }
+                        }
+
                         BabyPost savedPost = babyPostRepository.save(postToAdd);
                         return ResponseEntity.ok(savedPost);
                 } catch (Exception ex) {
@@ -1878,6 +1923,47 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         return ResponseEntity.ok("Post rejected");
                 } else {
                         return ResponseEntity.notFound().build();
+                }
+        }
+
+        @GetMapping("/images/{filename}")
+        public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+                try {
+                        // Security: Prevent directory traversal attacks
+                        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                                return ResponseEntity.badRequest().build();
+                        }
+                        
+                        Path uploadPath = Paths.get(UPLOAD_DIR).normalize();
+                        Path filePath = uploadPath.resolve(filename).normalize();
+                        
+                        // Ensure the resolved path is still within the upload directory
+                        if (!filePath.startsWith(uploadPath)) {
+                                return ResponseEntity.badRequest().build();
+                        }
+                        
+                        Resource resource = new UrlResource(filePath.toUri());
+                        
+                        if (resource.exists() && resource.isReadable()) {
+                                String contentType = "image/jpeg";
+                                if (filename.toLowerCase().endsWith(".png")) {
+                                        contentType = "image/png";
+                                } else if (filename.toLowerCase().endsWith(".gif")) {
+                                        contentType = "image/gif";
+                                } else if (filename.toLowerCase().endsWith(".webp")) {
+                                        contentType = "image/webp";
+                                }
+                                
+                                return ResponseEntity.ok()
+                                        .contentType(MediaType.parseMediaType(contentType))
+                                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                                        .body(resource);
+                        } else {
+                                return ResponseEntity.notFound().build();
+                        }
+                } catch (Exception e) {
+                        logger.error("Error serving image: {}", filename, e);
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 }
         }
 

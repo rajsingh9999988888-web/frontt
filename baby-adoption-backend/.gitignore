@@ -1,0 +1,22 @@
+# Uploaded images directory
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
