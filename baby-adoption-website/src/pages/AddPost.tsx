@@ -803,5 +803,6 @@ export default function AddPost() {
         </div>
       </div>
     </div>
+    </>
   );
 }
