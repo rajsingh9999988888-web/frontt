@@ -1720,7 +1720,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 return cities.getOrDefault(district, Collections.emptyList());
         }
 
-        @CrossOrigin(origins = "http://localhost:5173")
         @GetMapping("/babies")
         public List<BabyPost> getBabies(@RequestParam(required = false) String state,
                         @RequestParam(required = false) String district,
@@ -1827,7 +1826,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 }
         }
 
-        @CrossOrigin(origins = "http://localhost:5173")
         @GetMapping("/babies/{id}")
         public ResponseEntity<BabyPost> getBabyById(@PathVariable Integer id) {
                 Optional<BabyPost> post = babyPostRepository.findById(id);
@@ -1835,7 +1833,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                 .orElse(ResponseEntity.notFound().build());
         }
 
-        @CrossOrigin(origins = "http://localhost:5173")
         @GetMapping("/admin/posts")
         public ResponseEntity<?> getPendingPosts(@RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
@@ -1848,7 +1845,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 return ResponseEntity.ok(pendingPosts);
         }
 
-        @CrossOrigin(origins = "http://localhost:5173")
         @PutMapping("/admin/posts/{id}/approve")
         public ResponseEntity<?> approvePost(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
@@ -1868,7 +1864,6 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 }
         }
 
-        @CrossOrigin(origins = "http://localhost:5173")
         @PutMapping("/admin/posts/{id}/reject")
         public ResponseEntity<?> rejectPost(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
