@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -371,7 +371,7 @@ export default function AddPost() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>Post an adoption listing — BabyAdopt</title>
         <meta name="description" content="Create a new adoption listing on BabyAdopt. Add images, description, and contact details to reach potential adoptive parents." />
@@ -803,6 +803,6 @@ export default function AddPost() {
         </div>
       </div>
     </div>
-    </>
+    </React.Fragment>
   );
 }
