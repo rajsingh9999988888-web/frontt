@@ -1892,6 +1892,11 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                 postToAdd.setImageUrl("");
                         }
 
+                        // Ensure imageUrl is never null
+                        if (postToAdd.getImageUrl() == null) {
+                                postToAdd.setImageUrl("");
+                        }
+
                         logger.info("Saving post to database. Name: {}, ImageUrl: {}", postToAdd.getName(), postToAdd.getImageUrl());
                         BabyPost savedPost = babyPostRepository.save(postToAdd);
                         logger.info("Post saved successfully with ID: {}", savedPost.getId());
