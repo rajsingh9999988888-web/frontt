@@ -1,0 +1,35 @@
+==========================================
+VERCEL ENVIRONMENT VARIABLES
+==========================================
+Copy and paste these in Vercel Dashboard:
+Settings → Environment Variables
+
+Name: VITE_API_BASE_URL
+Value: https://baby-adoption-backend.onrender.com
+
+Set for: Production, Preview, Development
+==========================================
+
+
+==========================================
+RENDER ENVIRONMENT VARIABLES
+==========================================
+Copy and paste these in Render Dashboard:
+Your Service → Environment tab
+
+1. SPRING_PROFILES_ACTIVE
+   Value: production
+
+2. SPRING_DATASOURCE_URL
+   Value: jdbc:mysql://shortline.proxy.rlwy.net:56487/railway?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&connectTimeout=30000&socketTimeout=60000
+
+3. SPRING_DATASOURCE_USERNAME
+   Value: root
+
+4. SPRING_DATASOURCE_PASSWORD
+   Value: OiDIYtjuGrLRDsCWLBxdwvZhJGGJNnTk
+
+5. CORS_ALLOWED_ORIGINS
+   Value: https://www.nightsathi.com,https://nightsathi.com,https://baby-adoption-website.vercel.app,http://localhost:5173
+==========================================
+
