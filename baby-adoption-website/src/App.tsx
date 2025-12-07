@@ -38,7 +38,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login-signup" />;
   }
 
-  return <>{children}</>;
+  return <React.Fragment>{children}</React.Fragment>;
 }
 
 function AdminRoute({ children }: ProtectedRouteProps) {
