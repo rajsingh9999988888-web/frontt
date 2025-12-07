@@ -56,7 +56,7 @@ export default function LoginSignup(): React.JSX.Element {
 
   const getDefaultDashboard = (role?: string) => {
     if (role === 'ADMIN') return '/admin';
-    if (role === 'NORMAL') return '/dashboard';
+    // All users (NORMAL, EMPLOYEE) should go to add-post after login/register
     return '/add-post';
   };
 
@@ -152,10 +152,21 @@ export default function LoginSignup(): React.JSX.Element {
       }
 
       const derivedRole = data.role || (userType === 'user' ? 'NORMAL' : 'EMPLOYEE');
-      // After signup, redirect user to the login page and pre-fill email
-      alert('Signed up successfully! Please log in to continue.');
-      const loginUrl = `/login-signup?email=${encodeURIComponent(formData.email)}`;
-      navigate(loginUrl);
+      // After signup, automatically log the user in and redirect to add-post
+      if (data.token) {
+        login({ email: formData.email, role: derivedRole }, data.token);
+        const destination = redirectPath || getDefaultDashboard(derivedRole);
+        navigate(destination);
+        if (redirectPath) {
+          clearRedirectPath();
+        }
+        alert('Account created successfully! You can now add your post.');
+      } else {
+        // Fallback: if token not returned, redirect to login with pre-filled email
+        alert('Signed up successfully! Please log in to continue.');
+        const loginUrl = `/login-signup?email=${encodeURIComponent(formData.email)}`;
+        navigate(loginUrl);
+      }
       setFormData(createInitialFormState());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
