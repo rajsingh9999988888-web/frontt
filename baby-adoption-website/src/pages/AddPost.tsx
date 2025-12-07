@@ -370,7 +370,6 @@ export default function AddPost() {
     }
   };
 
-  // Return JSX with fragment
   return (
     <>
       <Helmet>
