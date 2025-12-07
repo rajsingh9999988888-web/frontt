@@ -176,7 +176,7 @@ export default function LoginSignup(): React.JSX.Element {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Helmet>
         <title>Login / Signup — BabyAdopt</title>
         <meta name="description" content="Login or create an account on BabyAdopt to publish and manage your adoption listings." />
@@ -371,5 +371,6 @@ export default function LoginSignup(): React.JSX.Element {
         </div>
       </div>
     </div>
+    </React.Fragment>
   );
 }
