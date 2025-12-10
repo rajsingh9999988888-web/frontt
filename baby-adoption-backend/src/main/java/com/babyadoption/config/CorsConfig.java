@@ -18,6 +18,11 @@ public class CorsConfig {
         config.addAllowedOrigin("https://www.nightsathi.com");
         config.addAllowedOrigin("https://nightsathi.com");
         config.addAllowedOrigin("https://baby-adoption-website.vercel.app");
+        config.addAllowedOrigin("https://frontt-huvs6qmyr-rajs-projects-e18f2259.vercel.app");
+        
+        // Allow all Vercel preview deployments (pattern matching)
+        // This covers all *.vercel.app subdomains for preview deployments
+        config.addAllowedOriginPattern("https://*.vercel.app");
         
         // Development origins (for local testing)
         config.addAllowedOrigin("http://localhost:5173");
