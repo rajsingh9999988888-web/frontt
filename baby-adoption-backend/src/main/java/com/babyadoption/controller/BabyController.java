@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,14 +36,35 @@ public class BabyController {
         private static final Logger logger = LoggerFactory.getLogger(BabyController.class);
         private static final String UPLOAD_DIR = "uploads";
         private final String backendBaseUrl;
+        private final Environment environment;
 
-        public BabyController(BabyPostRepository babyPostRepository) {
+        public BabyController(BabyPostRepository babyPostRepository, Environment environment) {
                 this.babyPostRepository = babyPostRepository;
-                // Get backend URL from environment variable or use default
-                this.backendBaseUrl = System.getenv("BACKEND_BASE_URL") != null 
-                        ? System.getenv("BACKEND_BASE_URL")
-                        : "https://baby-adoption-backend.onrender.com";
-                logger.info("Backend base URL configured as: {}", this.backendBaseUrl);
+                this.environment = environment;
+                
+                // Priority 1: Environment variable
+                String envUrl = System.getenv("BACKEND_BASE_URL");
+                if (envUrl != null && !envUrl.trim().isEmpty()) {
+                        this.backendBaseUrl = envUrl;
+                        logger.info("Backend base URL from environment variable: {}", this.backendBaseUrl);
+                } 
+                // Priority 2: Application properties (backend.base.url)
+                else if (environment != null && environment.containsProperty("backend.base.url")) {
+                        this.backendBaseUrl = environment.getProperty("backend.base.url", "http://localhost:8082");
+                        logger.info("Backend base URL from properties: {}", this.backendBaseUrl);
+                }
+                // Priority 3: Auto-detect based on port
+                else {
+                        String serverPort = System.getProperty("server.port", System.getenv("SERVER_PORT"));
+                        if (serverPort == null || "8082".equals(serverPort)) {
+                                this.backendBaseUrl = "http://localhost:8082";
+                        } else {
+                                this.backendBaseUrl = "https://baby-adoption-backend.onrender.com";
+                        }
+                        logger.info("Backend base URL auto-detected: {}", this.backendBaseUrl);
+                }
+                
+                logger.info("Final backend base URL configured as: {}", this.backendBaseUrl);
                 
                 // Create uploads directory if it doesn't exist
                 try {
@@ -1755,8 +1778,23 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         public List<BabyPost> getBabies(@RequestParam(required = false) String state,
                         @RequestParam(required = false) String district,
                         @RequestParam(required = false) String city) {
-                List<BabyPost> allApproved = babyPostRepository.findByStatus(PostStatus.APPROVED);
-                return allApproved.stream()
+                // For local development: Show all posts (including PENDING)
+                // For production: Show only APPROVED posts
+                String activeProfile = System.getProperty("spring.profiles.active", "");
+                boolean isLocalDev = "local".equals(activeProfile) || activeProfile.contains("local");
+                
+                List<BabyPost> posts;
+                if (isLocalDev) {
+                        // Local development: Show all posts
+                        posts = babyPostRepository.findAll();
+                        logger.info("Local development mode: Returning all posts (including PENDING)");
+                } else {
+                        // Production: Show only approved posts
+                        posts = babyPostRepository.findByStatus(PostStatus.APPROVED);
+                        logger.info("Production mode: Returning only APPROVED posts");
+                }
+                
+                return posts.stream()
                                 .filter(b -> b.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7))) // Not expired
                                 .filter(b -> (state == null || state.isEmpty() || b.getState().equals(state)) &&
                                                 (district == null || district.isEmpty()
