@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [approvalsToday, setApprovalsToday] = useState(0);
   const [rejectionsToday, setRejectionsToday] = useState(0);
+  const [deletionsToday, setDeletionsToday] = useState(0);
 
   const fetchPendingPosts = async () => {
     setLoading(true);
@@ -95,13 +96,35 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${id}/delete`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete post');
+      }
+      setPendingPosts((prev) => prev.filter((post) => post.id !== id));
+      setDeletionsToday((prev) => prev + 1);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Network error');
+    }
+  };
+
   const summaryCards = useMemo(
     () => [
       { label: 'Pending review', value: pendingPosts.length, tone: 'pending' as const },
       { label: 'Approved today', value: approvalsToday, tone: 'success' as const },
       { label: 'Rejected today', value: rejectionsToday, tone: 'danger' as const },
+      { label: 'Deleted today', value: deletionsToday, tone: 'danger' as const },
     ],
-    [pendingPosts.length, approvalsToday, rejectionsToday],
+    [pendingPosts.length, approvalsToday, rejectionsToday, deletionsToday],
   );
 
   if (!isAdmin()) {
@@ -242,6 +265,15 @@ export default function AdminDashboard() {
                       className="inline-flex items-center justify-center rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/40 dark:border-red-400/40 dark:text-red-300 dark:hover:bg-red-400/10"
                     >
                       Reject
+                    </button>
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600/40"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                      Delete
                     </button>
                   </div>
                 </article>

@@ -2020,6 +2020,39 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 }
         }
 
+        @DeleteMapping("/admin/posts/{id}/delete")
+        public ResponseEntity<?> deletePost(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String token) {
+                if (token == null || token.trim().isEmpty()) {
+                        return ResponseEntity.status(401).body("Missing Authorization header");
+                }
+                if (!isAdmin(token)) {
+                        return ResponseEntity.status(403).body("Access denied");
+                }
+                Optional<BabyPost> post = babyPostRepository.findById(id);
+                if (post.isPresent()) {
+                        BabyPost babyPost = post.get();
+                        // Delete associated image file if exists
+                        try {
+                                if (babyPost.getImageUrl() != null && !babyPost.getImageUrl().isEmpty()) {
+                                        String filename = babyPost.getImageUrl().substring(babyPost.getImageUrl().lastIndexOf("/") + 1);
+                                        Path imagePath = Paths.get(UPLOAD_DIR, filename);
+                                        if (Files.exists(imagePath)) {
+                                                Files.delete(imagePath);
+                                                logger.info("Deleted image file: {}", imagePath);
+                                        }
+                                }
+                        } catch (IOException e) {
+                                logger.warn("Failed to delete image file for post {}: {}", id, e.getMessage());
+                                // Continue with post deletion even if image deletion fails
+                        }
+                        babyPostRepository.delete(babyPost);
+                        logger.info("Admin deleted post with ID: {}", id);
+                        return ResponseEntity.ok("Post deleted successfully");
+                } else {
+                        return ResponseEntity.notFound().build();
+                }
+        }
+
         @GetMapping("/images/{filename}")
         public ResponseEntity<Resource> getImage(@PathVariable String filename) {
                 try {
