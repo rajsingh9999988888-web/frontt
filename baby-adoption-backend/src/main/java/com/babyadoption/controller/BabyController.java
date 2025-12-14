@@ -53,15 +53,33 @@ public class BabyController {
                         this.backendBaseUrl = environment.getProperty("backend.base.url", "http://localhost:8082");
                         logger.info("Backend base URL from properties: {}", this.backendBaseUrl);
                 }
-                // Priority 3: Auto-detect based on port
+                // Priority 3: Auto-detect based on profile and environment
                 else {
+                        // Check active Spring profile
+                        String[] activeProfiles = environment != null ? environment.getActiveProfiles() : new String[0];
+                        boolean isLocalProfile = activeProfiles.length > 0 && 
+                                Arrays.asList(activeProfiles).contains("local");
+                        
+                        // Check for Render environment (production)
+                        boolean isRender = System.getenv("RENDER") != null || 
+                                System.getenv("RENDER_SERVICE_NAME") != null ||
+                                System.getenv("RENDER_SERVICE_ID") != null;
+                        
+                        // Check for port 8082 (local development)
                         String serverPort = System.getProperty("server.port", System.getenv("SERVER_PORT"));
-                        if (serverPort == null || "8082".equals(serverPort)) {
+                        boolean isLocalPort = serverPort == null || "8082".equals(serverPort);
+                        
+                        // Determine URL: local if profile is "local" AND not on Render
+                        if (isLocalProfile && !isRender && isLocalPort) {
                                 this.backendBaseUrl = "http://localhost:8082";
+                                logger.info("Backend base URL auto-detected as LOCAL (profile: local, port: {})", serverPort);
                         } else {
+                                // Default to production URL
                                 this.backendBaseUrl = "https://baby-adoption-backend.onrender.com";
+                                logger.info("Backend base URL auto-detected as PRODUCTION (profile: {}, render: {}, port: {})", 
+                                        activeProfiles.length > 0 ? String.join(",", activeProfiles) : "default", 
+                                        isRender, serverPort);
                         }
-                        logger.info("Backend base URL auto-detected: {}", this.backendBaseUrl);
                 }
                 
                 logger.info("Final backend base URL configured as: {}", this.backendBaseUrl);
