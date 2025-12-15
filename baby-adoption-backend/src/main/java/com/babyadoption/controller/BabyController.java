@@ -1975,12 +1975,24 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         @GetMapping("/admin/posts")
         public ResponseEntity<?> getPendingPosts(@RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
+                        logger.warn("Admin endpoint accessed without token");
                         return ResponseEntity.status(401).body("Missing Authorization header");
                 }
                 if (!isAdmin(token)) {
-                        return ResponseEntity.status(403).body("Access denied");
+                        logger.warn("Non-admin user attempted to access admin endpoint");
+                        try {
+                                String role = Jwts.parserBuilder().setSigningKey(UserController.SECRET_KEY)
+                                                .build()
+                                                .parseClaimsJws(token.replace("Bearer ", "")).getBody()
+                                                .get("role", String.class);
+                                logger.info("User role: {}", role);
+                        } catch (Exception e) {
+                                logger.warn("Failed to parse token for admin check: {}", e.getMessage());
+                        }
+                        return ResponseEntity.status(403).body("Access denied - Admin role required");
                 }
                 List<BabyPost> pendingPosts = babyPostRepository.findByStatus(PostStatus.PENDING);
+                logger.info("Admin fetched {} pending posts", pendingPosts.size());
                 return ResponseEntity.ok(pendingPosts);
         }
 
@@ -2058,6 +2070,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 try {
                         // Security: Prevent directory traversal attacks
                         if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                                logger.warn("Invalid filename attempt: {}", filename);
                                 return ResponseEntity.badRequest().build();
                         }
                         
@@ -2066,6 +2079,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         
                         // Ensure the resolved path is still within the upload directory
                         if (!filePath.startsWith(uploadPath)) {
+                                logger.warn("Path traversal attempt detected: {}", filename);
                                 return ResponseEntity.badRequest().build();
                         }
                         
@@ -2081,15 +2095,18 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                                         contentType = "image/webp";
                                 }
                                 
+                                logger.debug("Serving image: {}", filename);
                                 return ResponseEntity.ok()
                                         .contentType(MediaType.parseMediaType(contentType))
                                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                                         .body(resource);
                         } else {
+                                logger.warn("Image file not found: {} (Path: {})", filename, filePath.toAbsolutePath());
+                                // Return a placeholder or 404
                                 return ResponseEntity.notFound().build();
                         }
                 } catch (Exception e) {
-                        logger.error("Error serving image: {}", filename, e);
+                        logger.error("Error serving image: {} - {}", filename, e.getMessage(), e);
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 }
         }
