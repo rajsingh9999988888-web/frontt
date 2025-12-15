@@ -20,7 +20,8 @@ type PendingPost = {
 export default function AdminDashboard() {
   const { token, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
+  const [allPosts, setAllPosts] = useState<PendingPost[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<PendingPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
@@ -29,33 +30,53 @@ export default function AdminDashboard() {
   const [deletionsToday, setDeletionsToday] = useState(0);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved'>('all');
 
-  const fetchPosts = async (status?: string) => {
+  const fetchPosts = async () => {
+    if (!token) {
+      setError('Not logged in');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError('');
     try {
-      const url = status && status !== 'all' 
-        ? `${API_BASE_URL}/api/babies/admin/posts?status=${status}`
-        : `${API_BASE_URL}/api/babies/admin/posts`;
-      const response = await fetch(url, {
+      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to load posts');
+        if (response.status === 403) {
+          throw new Error('Access denied. Please login as admin (admin@134)');
+        } else if (response.status === 401) {
+          throw new Error('Not authenticated. Please login again');
+        }
+        const errorText = await response.text();
+        throw new Error(`Failed to load posts: ${errorText || response.statusText}`);
       }
       const data = await response.json();
-      setPendingPosts(Array.isArray(data) ? data : []);
+      const posts = Array.isArray(data) ? data : [];
+      console.log('Fetched posts:', posts.length, posts);
+      setAllPosts(posts);
+      // Apply current filter client-side
+      applyFilter(posts, filterStatus);
       setLastRefreshed(new Date());
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching posts:', err);
       setError(err instanceof Error ? err.message : 'Network error');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchPendingPosts = () => fetchPosts('pending');
+  const applyFilter = (posts: PendingPost[], status: 'all' | 'pending' | 'approved') => {
+    if (status === 'all') {
+      setFilteredPosts(posts);
+    } else if (status === 'pending') {
+      setFilteredPosts(posts.filter((p) => p.status === 'PENDING'));
+    } else if (status === 'approved') {
+      setFilteredPosts(posts.filter((p) => p.status === 'APPROVED'));
+    }
+  };
 
   useEffect(() => {
     if (!isAdmin()) {
@@ -63,9 +84,15 @@ export default function AdminDashboard() {
       setLoading(false);
       return;
     }
-    fetchPosts(filterStatus === 'all' ? undefined : filterStatus);
+    fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, filterStatus]);
+  }, [token]);
+
+  // Re-apply filter when filterStatus or allPosts change
+  useEffect(() => {
+    applyFilter(allPosts, filterStatus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterStatus, allPosts]);
 
   const handleApprove = async (id: number) => {
     try {
@@ -78,7 +105,7 @@ export default function AdminDashboard() {
       if (!response.ok) {
         throw new Error('Failed to approve post');
       }
-      setPendingPosts((prev) => prev.filter((post) => post.id !== id));
+      setAllPosts((prev) => prev.map((post) => post.id === id ? { ...post, status: 'APPROVED' } : post));
       setApprovalsToday((prev) => prev + 1);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Network error');
@@ -96,7 +123,7 @@ export default function AdminDashboard() {
       if (!response.ok) {
         throw new Error('Failed to reject post');
       }
-      setPendingPosts((prev) => prev.filter((post) => post.id !== id));
+      setAllPosts((prev) => prev.filter((post) => post.id !== id));
       setRejectionsToday((prev) => prev + 1);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Network error');
@@ -117,22 +144,24 @@ export default function AdminDashboard() {
       if (!response.ok) {
         throw new Error('Failed to delete post');
       }
-      setPendingPosts((prev) => prev.filter((post) => post.id !== id));
+      setAllPosts((prev) => prev.filter((post) => post.id !== id));
       setDeletionsToday((prev) => prev + 1);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Network error');
     }
   };
 
-  const summaryCards = useMemo(
-    () => [
-      { label: 'Pending review', value: pendingPosts.length, tone: 'pending' as const },
-      { label: 'Approved today', value: approvalsToday, tone: 'success' as const },
-      { label: 'Rejected today', value: rejectionsToday, tone: 'danger' as const },
+  const summaryCards = useMemo(() => {
+    const pendingCount = allPosts.filter((p) => p.status === 'PENDING').length;
+    const approvedCount = allPosts.filter((p) => p.status === 'APPROVED').length;
+    const totalCount = allPosts.length;
+    return [
+      { label: 'Total posts', value: totalCount, tone: 'pending' as const },
+      { label: 'Pending review', value: pendingCount, tone: 'pending' as const },
+      { label: 'Approved', value: approvedCount, tone: 'success' as const },
       { label: 'Deleted today', value: deletionsToday, tone: 'danger' as const },
-    ],
-    [pendingPosts.length, approvalsToday, rejectionsToday, deletionsToday],
-  );
+    ];
+  }, [allPosts, deletionsToday]);
 
   if (!isAdmin()) {
     return (
@@ -217,7 +246,7 @@ export default function AdminDashboard() {
                 </h2>
               </div>
               <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-300">
-                {pendingPosts.length} {filterStatus === 'all' ? 'total' : filterStatus === 'pending' ? 'waiting' : 'approved'}
+                {filteredPosts.length} {filterStatus === 'all' ? 'total' : filterStatus === 'pending' ? 'waiting' : 'approved'}
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -267,13 +296,13 @@ export default function AdminDashboard() {
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#ff4f70]" />
                 Loading queue…
               </div>
-            ) : pendingPosts.length === 0 ? (
+            ) : filteredPosts.length === 0 ? (
               <div className="px-6 py-16 text-center text-sm text-slate-500 dark:text-slate-300">
                 <p className="text-lg font-semibold text-slate-700 dark:text-slate-100">All clear!</p>
                 <p className="mt-2">No pending submissions. Come back later for new content.</p>
               </div>
             ) : (
-              pendingPosts.map((post) => (
+              filteredPosts.map((post) => (
                 <article key={post.id} className="grid gap-4 px-6 py-5 lg:grid-cols-[1.8fr_1fr_auto] lg:items-center">
                   <div>
                     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
