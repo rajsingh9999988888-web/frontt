@@ -145,7 +145,47 @@ export default function AdminDashboard() {
         throw new Error('Failed to delete post');
       }
       setAllPosts((prev) => prev.filter((post) => post.id !== id));
+      setFilteredPosts((prev) => prev.filter((post) => post.id !== id));
       setDeletionsToday((prev) => prev + 1);
+      // Refresh to update counts
+      fetchPosts();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Network error');
+    }
+  };
+
+  const handleDeleteAllOld = async () => {
+    const oldPosts = allPosts.filter((post) => {
+      if (!post.createdAt) return false;
+      const created = new Date(post.createdAt);
+      const daysOld = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
+      return daysOld > 7; // Older than 7 days
+    });
+    
+    if (oldPosts.length === 0) {
+      alert('No old posts found (older than 7 days)');
+      return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${oldPosts.length} old posts? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      let deleted = 0;
+      for (const post of oldPosts) {
+        const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${post.id}/delete`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          deleted++;
+        }
+      }
+      alert(`Deleted ${deleted} old posts`);
+      fetchPosts(); // Refresh
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Network error');
     }
@@ -327,8 +367,8 @@ export default function AdminDashboard() {
                         </span>
                       )}
                       {post.createdAt && (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                          {new Date(post.createdAt).toLocaleDateString()}
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] text-slate-500 dark:bg-slate-800 dark:text-slate-300" title={new Date(post.createdAt).toLocaleString()}>
+                          {getTimeAgo(post.createdAt)}
                         </span>
                       )}
                     </div>
