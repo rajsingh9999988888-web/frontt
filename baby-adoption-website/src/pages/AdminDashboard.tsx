@@ -298,8 +298,16 @@ export default function AdminDashboard() {
               </div>
             ) : filteredPosts.length === 0 ? (
               <div className="px-6 py-16 text-center text-sm text-slate-500 dark:text-slate-300">
-                <p className="text-lg font-semibold text-slate-700 dark:text-slate-100">All clear!</p>
-                <p className="mt-2">No pending submissions. Come back later for new content.</p>
+                <p className="text-lg font-semibold text-slate-700 dark:text-slate-100">
+                  {filterStatus === 'all' ? 'No posts found' : filterStatus === 'pending' ? 'All clear!' : 'No approved posts'}
+                </p>
+                <p className="mt-2">
+                  {filterStatus === 'all' 
+                    ? 'No posts in the system yet. Create your first post!'
+                    : filterStatus === 'pending'
+                    ? 'No pending submissions. Come back later for new content.'
+                    : 'No approved posts found. Approve some posts first.'}
+                </p>
               </div>
             ) : (
               filteredPosts.map((post) => (
