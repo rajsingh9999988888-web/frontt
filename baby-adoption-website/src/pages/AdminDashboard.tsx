@@ -14,6 +14,7 @@ type PendingPost = {
   whatsapp?: string;
   category?: string;
   createdAt?: string;
+  status?: string;
 };
 
 export default function AdminDashboard() {
@@ -26,18 +27,22 @@ export default function AdminDashboard() {
   const [approvalsToday, setApprovalsToday] = useState(0);
   const [rejectionsToday, setRejectionsToday] = useState(0);
   const [deletionsToday, setDeletionsToday] = useState(0);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved'>('all');
 
-  const fetchPendingPosts = async () => {
+  const fetchPosts = async (status?: string) => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts`, {
+      const url = status && status !== 'all' 
+        ? `${API_BASE_URL}/api/babies/admin/posts?status=${status}`
+        : `${API_BASE_URL}/api/babies/admin/posts`;
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to load pending posts');
+        throw new Error('Failed to load posts');
       }
       const data = await response.json();
       setPendingPosts(Array.isArray(data) ? data : []);
@@ -50,15 +55,17 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchPendingPosts = () => fetchPosts('pending');
+
   useEffect(() => {
     if (!isAdmin()) {
       setError('Access denied · Admin only');
       setLoading(false);
       return;
     }
-    fetchPendingPosts();
+    fetchPosts(filterStatus === 'all' ? undefined : filterStatus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, filterStatus]);
 
   const handleApprove = async (id: number) => {
     try {
@@ -161,7 +168,7 @@ export default function AdminDashboard() {
                 Add Post
               </button>
               <button
-                onClick={fetchPendingPosts}
+                onClick={() => fetchPosts(filterStatus === 'all' ? undefined : filterStatus)}
                 className="inline-flex items-center gap-2 rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                 disabled={loading}
               >
@@ -204,15 +211,53 @@ export default function AdminDashboard() {
           <header className="flex flex-col gap-3 border-b border-slate-200/70 px-6 py-5 dark:border-slate-800">
             <div className="flex flex-wrap items-center gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">Queue</p>
-                <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Pending listings</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">Posts Management</p>
+                <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  {filterStatus === 'all' ? 'All Posts' : filterStatus === 'pending' ? 'Pending Posts' : 'Approved Posts'}
+                </h2>
               </div>
               <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-300">
-                {pendingPosts.length} waiting
+                {pendingPosts.length} {filterStatus === 'all' ? 'total' : filterStatus === 'pending' ? 'waiting' : 'approved'}
               </span>
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  filterStatus === 'all'
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                }`}
+              >
+                All Posts
+              </button>
+              <button
+                onClick={() => setFilterStatus('pending')}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  filterStatus === 'pending'
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                }`}
+              >
+                Pending
+              </button>
+              <button
+                onClick={() => setFilterStatus('approved')}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  filterStatus === 'approved'
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                }`}
+              >
+                Approved
+              </button>
+            </div>
             <p className="text-sm text-slate-500 dark:text-slate-300">
-              Review new posts submitted by employees. Approvals publish instantly, rejections permanently remove the ad.
+              {filterStatus === 'all' 
+                ? 'Manage all posts. Approve, reject, or delete any post.'
+                : filterStatus === 'pending'
+                ? 'Review new posts submitted by employees. Approve trustworthy listings and keep the gallery fresh.'
+                : 'Manage approved posts. Delete posts that are no longer needed.'}
             </p>
           </header>
 
@@ -233,6 +278,17 @@ export default function AdminDashboard() {
                   <div>
                     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
                       {post.category || 'Listing'}
+                      {post.status && (
+                        <span className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
+                          post.status === 'APPROVED' 
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                            : post.status === 'PENDING'
+                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+                            : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300'
+                        }`}>
+                          {post.status}
+                        </span>
+                      )}
                       {post.createdAt && (
                         <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
                           {new Date(post.createdAt).toLocaleDateString()}
@@ -254,18 +310,22 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => handleApprove(post.id)}
-                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-600/40"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(post.id)}
-                      className="inline-flex items-center justify-center rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/40 dark:border-red-400/40 dark:text-red-300 dark:hover:bg-red-400/10"
-                    >
-                      Reject
-                    </button>
+                    {post.status === 'PENDING' && (
+                      <>
+                        <button
+                          onClick={() => handleApprove(post.id)}
+                          className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-600/40"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleReject(post.id)}
+                          className="inline-flex items-center justify-center rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/40 dark:border-red-400/40 dark:text-red-300 dark:hover:bg-red-400/10"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
                     <button
                       onClick={() => handleDelete(post.id)}
                       className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600/40"

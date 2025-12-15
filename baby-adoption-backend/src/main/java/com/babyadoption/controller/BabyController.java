@@ -1973,7 +1973,8 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         }
 
         @GetMapping("/admin/posts")
-        public ResponseEntity<?> getPendingPosts(@RequestHeader(value = "Authorization", required = false) String token) {
+        public ResponseEntity<?> getPendingPosts(@RequestHeader(value = "Authorization", required = false) String token,
+                        @RequestParam(required = false) String status) {
                 if (token == null || token.trim().isEmpty()) {
                         logger.warn("Admin endpoint accessed without token");
                         return ResponseEntity.status(401).body("Missing Authorization header");
@@ -1991,9 +1992,25 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         }
                         return ResponseEntity.status(403).body("Access denied - Admin role required");
                 }
-                List<BabyPost> pendingPosts = babyPostRepository.findByStatus(PostStatus.PENDING);
-                logger.info("Admin fetched {} pending posts", pendingPosts.size());
-                return ResponseEntity.ok(pendingPosts);
+                
+                List<BabyPost> posts;
+                if (status != null && !status.trim().isEmpty()) {
+                        // Filter by status if provided
+                        try {
+                                PostStatus postStatus = PostStatus.valueOf(status.toUpperCase());
+                                posts = babyPostRepository.findByStatus(postStatus);
+                                logger.info("Admin fetched {} posts with status: {}", posts.size(), status);
+                        } catch (IllegalArgumentException e) {
+                                // Invalid status, return all posts
+                                posts = babyPostRepository.findAll();
+                                logger.info("Invalid status '{}', returning all posts: {}", status, posts.size());
+                        }
+                } else {
+                        // Default: return all posts (pending, approved, etc.)
+                        posts = babyPostRepository.findAll();
+                        logger.info("Admin fetched all {} posts", posts.size());
+                }
+                return ResponseEntity.ok(posts);
         }
 
         @PutMapping("/admin/posts/{id}/approve")
