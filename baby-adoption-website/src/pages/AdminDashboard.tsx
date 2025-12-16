@@ -170,6 +170,28 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleFixImageUrls = async () => {
+    if (!confirm('This will fix all image URLs in the database. Continue?')) {
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/babies/admin/fix-image-urls`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fix image URLs');
+      }
+      const data = await response.json();
+      alert(`Fixed ${data.fixed || 0} image URLs out of ${data.totalPosts || 0} posts`);
+      fetchPosts(); // Refresh
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Network error');
+    }
+  };
+
   const handleDeleteAllOld = async () => {
     const oldPosts = allPosts.filter((post) => {
       if (!post.createdAt) return false;
@@ -251,6 +273,16 @@ export default function AdminDashboard() {
                   <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Add Post
+              </button>
+              <button
+                onClick={handleFixImageUrls}
+                className="inline-flex items-center gap-2 rounded-full bg-blue-500/80 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-600/80"
+                title="Fix all image URLs (localhost to production)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Fix URLs
               </button>
               <button
                 onClick={() => fetchPosts(filterStatus === 'all' ? undefined : filterStatus)}

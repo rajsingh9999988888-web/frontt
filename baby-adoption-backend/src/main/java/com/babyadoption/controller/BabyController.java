@@ -2049,6 +2049,52 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 }
         }
 
+        @PutMapping("/admin/fix-image-urls")
+        public ResponseEntity<?> fixImageUrls(@RequestHeader(value = "Authorization", required = false) String token) {
+                if (token == null || token.trim().isEmpty()) {
+                        return ResponseEntity.status(401).body("Missing Authorization header");
+                }
+                if (!isAdmin(token)) {
+                        return ResponseEntity.status(403).body("Access denied - Admin role required");
+                }
+                
+                try {
+                        List<BabyPost> allPosts = babyPostRepository.findAll();
+                        int fixed = 0;
+                        String productionUrl = "https://baby-adoption-backend.onrender.com";
+                        
+                        for (BabyPost post : allPosts) {
+                                String imageUrl = post.getImageUrl();
+                                if (imageUrl != null && !imageUrl.isEmpty()) {
+                                        String newUrl = imageUrl;
+                                        
+                                        // Fix localhost URLs
+                                        if (imageUrl.contains("localhost:8082")) {
+                                                newUrl = imageUrl.replace("http://localhost:8082", productionUrl);
+                                                fixed++;
+                                        }
+                                        // Fix HTTP to HTTPS
+                                        else if (imageUrl.startsWith("http://") && !imageUrl.contains("localhost")) {
+                                                newUrl = imageUrl.replace("http://", "https://");
+                                                fixed++;
+                                        }
+                                        
+                                        if (!newUrl.equals(imageUrl)) {
+                                                post.setImageUrl(newUrl);
+                                                babyPostRepository.save(post);
+                                                logger.info("Fixed image URL for post {}: {} -> {}", post.getId(), imageUrl, newUrl);
+                                        }
+                                }
+                        }
+                        
+                        logger.info("Fixed {} image URLs", fixed);
+                        return ResponseEntity.ok(Map.of("message", "Fixed " + fixed + " image URLs", "totalPosts", allPosts.size(), "fixed", fixed));
+                } catch (Exception e) {
+                        logger.error("Error fixing image URLs: {}", e.getMessage(), e);
+                        return ResponseEntity.status(500).body("Error fixing image URLs: " + e.getMessage());
+                }
+        }
+
         @DeleteMapping("/admin/posts/{id}/delete")
         public ResponseEntity<?> deletePost(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String token) {
                 if (token == null || token.trim().isEmpty()) {
