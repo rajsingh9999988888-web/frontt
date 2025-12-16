@@ -2009,7 +2009,17 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         // Default: return all posts (pending, approved, etc.)
                         posts = babyPostRepository.findAll();
                         logger.info("Admin fetched all {} posts", posts.size());
+                        if (posts.size() > 0) {
+                                logger.info("Sample post IDs: {}", posts.stream().limit(5).map(BabyPost::getId).collect(Collectors.toList()));
+                        }
                 }
+                // Return posts sorted by creation date (newest first)
+                posts.sort((a, b) -> {
+                        if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                        if (a.getCreatedAt() == null) return 1;
+                        if (b.getCreatedAt() == null) return -1;
+                        return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
                 return ResponseEntity.ok(posts);
         }
 

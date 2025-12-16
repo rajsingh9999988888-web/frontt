@@ -55,7 +55,11 @@ export default function AdminDashboard() {
       }
       const data = await response.json();
       const posts = Array.isArray(data) ? data : [];
-      console.log('Fetched posts:', posts.length, posts);
+      console.log('✅ Admin fetched posts:', posts.length, 'posts');
+      console.log('Posts data:', posts);
+      if (posts.length > 0) {
+        console.log('First post sample:', posts[0]);
+      }
       setAllPosts(posts);
       // Apply current filter client-side
       applyFilter(posts, filterStatus);
