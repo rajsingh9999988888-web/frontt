@@ -1975,6 +1975,9 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
         @GetMapping("/admin/posts")
         public ResponseEntity<?> getPendingPosts(@RequestHeader(value = "Authorization", required = false) String token,
                         @RequestParam(required = false) String status) {
+                logger.info("=== ADMIN POSTS ENDPOINT CALLED ===");
+                logger.info("Status parameter: {}", status);
+                
                 if (token == null || token.trim().isEmpty()) {
                         logger.warn("Admin endpoint accessed without token");
                         return ResponseEntity.status(401).body("Missing Authorization header");
@@ -1993,6 +1996,18 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         return ResponseEntity.status(403).body("Access denied - Admin role required");
                 }
                 
+                logger.info("Admin authentication successful. Fetching posts...");
+                
+                // First, let's check total count in database
+                long totalCount = babyPostRepository.count();
+                logger.info("Total posts in database: {}", totalCount);
+                
+                // Check counts by status
+                List<BabyPost> allPostsCheck = babyPostRepository.findAll();
+                long approvedCount = allPostsCheck.stream().filter(p -> p.getStatus() == PostStatus.APPROVED).count();
+                long pendingCount = allPostsCheck.stream().filter(p -> p.getStatus() == PostStatus.PENDING).count();
+                logger.info("Approved posts: {}, Pending posts: {}", approvedCount, pendingCount);
+                
                 List<BabyPost> posts;
                 if (status != null && !status.trim().isEmpty()) {
                         // Filter by status if provided
@@ -2008,9 +2023,18 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                 } else {
                         // Default: return all posts (pending, approved, etc.)
                         posts = babyPostRepository.findAll();
-                        logger.info("Admin fetched all {} posts", posts.size());
+                        logger.info("Admin fetched all {} posts from repository", posts.size());
                         if (posts.size() > 0) {
                                 logger.info("Sample post IDs: {}", posts.stream().limit(5).map(BabyPost::getId).collect(Collectors.toList()));
+                                logger.info("Sample post statuses: {}", posts.stream().limit(5).map(p -> p.getStatus().toString()).collect(Collectors.toList()));
+                        } else {
+                                logger.warn("⚠️ Repository returned 0 posts, but database count is: {}", totalCount);
+                                // Try to fetch approved posts as fallback
+                                List<BabyPost> approvedPosts = babyPostRepository.findByStatus(PostStatus.APPROVED);
+                                logger.info("Fallback: Found {} approved posts", approvedPosts.size());
+                                if (approvedPosts.size() > 0) {
+                                        posts = approvedPosts;
+                                }
                         }
                 }
                 // Return posts sorted by creation date (newest first)
@@ -2020,6 +2044,7 @@ cities.put("Nawanshahr", Arrays.asList("Nawanshahr", "Balachaur", "Nawanshahr", 
                         if (b.getCreatedAt() == null) return -1;
                         return b.getCreatedAt().compareTo(a.getCreatedAt());
                 });
+                logger.info("Returning {} posts to admin console", posts.size());
                 return ResponseEntity.ok(posts);
         }
 
