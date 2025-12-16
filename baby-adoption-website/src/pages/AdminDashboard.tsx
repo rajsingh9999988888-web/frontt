@@ -96,17 +96,25 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!isAdmin()) {
-      setError('Access denied · Admin only');
+      setError('Access denied · Admin only. Please login with admin@134');
       setLoading(false);
       return;
     }
+    if (!token) {
+      setError('Not logged in. Please login first');
+      setLoading(false);
+      return;
+    }
+    // Fetch posts when component mounts or token changes
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   // Re-apply filter when filterStatus or allPosts change
   useEffect(() => {
-    applyFilter(allPosts, filterStatus);
+    if (allPosts.length > 0) {
+      applyFilter(allPosts, filterStatus);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterStatus, allPosts]);
 
@@ -239,7 +247,7 @@ export default function AdminDashboard() {
       { label: 'Approved', value: approvedCount, tone: 'success' as const },
       { label: 'Deleted today', value: deletionsToday, tone: 'danger' as const },
     ];
-  }, [allPosts, deletionsToday]);
+  }, [allPosts, deletionsToday, totalAvailablePosts]);
 
   if (!isAdmin()) {
     return (
@@ -300,7 +308,7 @@ export default function AdminDashboard() {
               )}
             </div>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-5">
             {summaryCards.map((card) => (
               <article
                 key={card.label}
