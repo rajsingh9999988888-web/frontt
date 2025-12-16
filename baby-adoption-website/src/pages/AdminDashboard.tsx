@@ -89,13 +89,16 @@ export default function AdminDashboard() {
   };
 
   const applyFilter = (posts: PendingPost[], status: 'all' | 'pending' | 'approved') => {
+    let filtered: PendingPost[] = [];
     if (status === 'all') {
-      setFilteredPosts(posts);
+      filtered = posts;
     } else if (status === 'pending') {
-      setFilteredPosts(posts.filter((p) => p.status === 'PENDING'));
+      filtered = posts.filter((p) => p.status === 'PENDING');
     } else if (status === 'approved') {
-      setFilteredPosts(posts.filter((p) => p.status === 'APPROVED'));
+      filtered = posts.filter((p) => p.status === 'APPROVED');
     }
+    console.log(`✅ Applied filter '${status}': ${filtered.length} posts out of ${posts.length} total`);
+    setFilteredPosts(filtered);
   };
 
   useEffect(() => {
