@@ -237,12 +237,25 @@ export default function AdminDashboard() {
     }
   };
 
+  // Calculate total posts available on website (approved and not expired)
+  const totalAvailablePosts = useMemo(() => {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    return allPosts.filter((p) => {
+      if (p.status !== 'APPROVED') return false;
+      if (!p.createdAt) return false;
+      const created = new Date(p.createdAt);
+      return created > sevenDaysAgo;
+    }).length;
+  }, [allPosts]);
+
   const summaryCards = useMemo(() => {
     const pendingCount = allPosts.filter((p) => p.status === 'PENDING').length;
     const approvedCount = allPosts.filter((p) => p.status === 'APPROVED').length;
     const totalCount = allPosts.length;
     return [
       { label: 'Total posts', value: totalCount, tone: 'pending' as const },
+      { label: 'Available on web', value: totalAvailablePosts, tone: 'success' as const },
       { label: 'Pending review', value: pendingCount, tone: 'pending' as const },
       { label: 'Approved', value: approvedCount, tone: 'success' as const },
       { label: 'Deleted today', value: deletionsToday, tone: 'danger' as const },
