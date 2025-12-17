@@ -337,23 +337,20 @@ export default function Home(): React.JSX.Element {
           ))}
         </section>
 
-        <section className="space-y-10">
+        <section className="space-y-6">
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-2xl">💋</span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Call Girls</h2>
-            </div>
-            <p className="text-sm text-slate-500 dark:text-slate-300">Browse by State, Capital & Districts</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Call Girls</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-300 mt-2">Hot call girls and independent girls ready to meet in your city.</p>
           </div>
-          
-          <div className="space-y-10">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {allStatesData.map((stateData) => (
-              <div key={stateData.state} className="space-y-3">
-                <div className="flex items-center gap-3 pb-2 border-b border-slate-200 dark:border-slate-700">
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{stateData.state}</h3>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Capital: {stateData.capital}</span>
+              <article key={stateData.state} className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{stateData.state}</h3>
+                  <span className="text-xs text-slate-400">✦</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-3 gap-y-2">
+                <p className="text-xs text-slate-500 dark:text-slate-400">Capital: {stateData.capital}</p>
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() =>
                       goToListings({
@@ -363,9 +360,9 @@ export default function Home(): React.JSX.Element {
                         query: searchTerm,
                       })
                     }
-                    className="text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:text-[#ff4f70] transition underline decoration-[#ff4f70]"
+                    className="rounded-full border border-slate-200 px-3 py-1 text-xs text-[#ff4f70] hover:border-[#ff4f70] dark:border-slate-700"
                   >
-                    &gt; {stateData.capital}
+                    {stateData.capital}
                   </button>
                   {stateData.districts.map((district) => (
                     <button
@@ -378,13 +375,13 @@ export default function Home(): React.JSX.Element {
                           query: searchTerm,
                         })
                       }
-                      className="text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:text-[#ff4f70] transition underline decoration-[#ff4f70]"
+                      className="rounded-full border border-slate-200 px-3 py-1 text-xs text-[#ff4f70] hover:border-[#ff4f70] dark:border-slate-700"
                     >
-                      &gt; {district}
+                      {district}
                     </button>
                   ))}
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </section>
