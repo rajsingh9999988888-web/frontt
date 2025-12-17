@@ -98,9 +98,6 @@ export default function Navbar(): React.JSX.Element {
               <span className="block text-2xl font-black text-[#ff4f70] dark:text-[#ff4f70]">
                 BabyAdopt
               </span>
-              <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                Call Girls • Massage • Escorts
-              </span>
             </div>
           </NavLink>
 
