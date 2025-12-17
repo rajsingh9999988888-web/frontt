@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
+import KeywordsSection from '../components/KeywordsSection';
 
 type FeaturedCategory = {
   id: string;
@@ -230,10 +231,10 @@ export default function Home(): React.JSX.Element {
           <div className="max-w-3xl space-y-6">
             
             <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">
-              Single? Taken? Doesn’t matter, BabyAdopt is for everyone.
+              BabyAdopt - Find Call Girls, Massage & Escorts in India
             </h1>
             <p className="text-base text-white/80">
-              Search discreetly by city or category. Verified imagery, real availability, and fast responses.
+              Search verified call girls, massage services, and escorts by city, state, and category. Mumbai, Delhi, Bangalore, Hyderabad, Pune, Chennai, Kolkata and all major cities. Independent call girls with contact details.
             </p>
             <button
               onClick={() => {
@@ -259,8 +260,9 @@ export default function Home(): React.JSX.Element {
       <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8 space-y-12">
         <section className="space-y-6">
           <div className="text-center">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Call Girls, Massage & Escorts in Your City</h2>
             <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-300">Hot meetings in your city</p>
-            <p className="text-sm text-slate-500 dark:text-slate-300">Find your favorite escort in BabyAdopt</p>
+            <p className="text-sm text-slate-500 dark:text-slate-300">Find verified call girls, massage services, and escorts in BabyAdopt - Mumbai, Delhi, Bangalore, Hyderabad, Pune, Chennai, Kolkata</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {featuredCategories.map((category) => (
@@ -341,8 +343,8 @@ export default function Home(): React.JSX.Element {
 
         <section className="space-y-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Call Girls</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-300 mt-2">Hot call girls and independent girls ready to meet in your city.</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Call Girls in India - BabyAdopt</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-300 mt-2">Hot call girls and independent girls ready to meet in your city. Find call girls in Mumbai, Delhi, Bangalore, Hyderabad, Pune, Chennai, Kolkata, Bhopal, Ranchi and all cities of India on BabyAdopt.</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {allStatesData.map((stateData) => (
@@ -536,6 +538,7 @@ export default function Home(): React.JSX.Element {
           </div>
         </div>
       )}
+      <KeywordsSection />
     </div>
     </React.Fragment>
   );

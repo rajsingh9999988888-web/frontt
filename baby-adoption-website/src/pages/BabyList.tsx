@@ -334,11 +334,10 @@ export default function BabyList(): React.JSX.Element {
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#ff4f70]">Exclusive directory</p>
             <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-              Browse verified companions ready for unforgettable nights.
+              Call Girls, Massage & Escorts - Verified Listings on BabyAdopt
             </h1>
             <p className="max-w-2xl text-sm text-slate-600 dark:text-slate-300">
-              Search by city, filter by category, and discover premium listings updated in real-time. Every profile comes
-              with concierge-assisted contact for discreet arrangements.
+              Search call girls, massage services, and escorts by city, state, and category. Find verified profiles in Mumbai, Delhi, Bangalore, Hyderabad, Pune, Chennai, Kolkata and all cities of India. Browse independent call girls with contact details, ratings, and reviews.
             </p>
           </div>
           <label className="flex w-full max-w-xs items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-500 shadow-sm transition focus-within:border-[#ff4f70] focus-within:ring-2 focus-within:ring-[#ff4f70]/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">

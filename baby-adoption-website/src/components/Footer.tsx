@@ -16,9 +16,9 @@ export default function Footer(): React.JSX.Element {
       <div className="border-b border-slate-200/70 bg-white/90 transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900/70">
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start lg:justify-between lg:px-8">
           <div className="max-w-sm space-y-3">
-            <h4 className="text-lg font-semibold text-slate-900 dark:text-white">BabyAdopt Concierge</h4>
+            <h4 className="text-lg font-semibold text-slate-900 dark:text-white">BabyAdopt - Call Girls, Massage & Escorts</h4>
             <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-              Verified classifieds with concierge support across India.
+              Find verified call girls, massage services, and escorts in all cities of India. Mumbai, Delhi, Bangalore, Hyderabad, Pune, Chennai, Kolkata. Independent call girls with contact details.
             </p>
             <div className="flex flex-wrap items-center gap-2 text-[0.55rem] uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
               <span>EN</span>
