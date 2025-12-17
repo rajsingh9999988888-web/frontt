@@ -18,19 +18,35 @@ export default function SafeImage({ src, fallback = FALLBACK_IMAGE, alt, classNa
     if (!src || src.trim() === '') {
       return fallback;
     }
-    // If src is a relative path, construct full URL
-    if (src.startsWith('/') || !src.startsWith('http')) {
-      // Check if it's a local upload path
-      if (src.startsWith('/uploads/') || src.includes('uploads/')) {
-        // Construct full backend URL
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-          (import.meta.env.PROD ? 'https://baby-adoption-backend.onrender.com' : 'http://localhost:8082');
-        return `${API_BASE_URL}${src.startsWith('/') ? src : '/' + src}`;
-      }
-      // For other relative paths, return as is (browser will handle)
-      return src;
+    
+    const trimmedSrc = src.trim();
+    
+    // If src is already a full URL (http/https), use it directly
+    if (trimmedSrc.startsWith('http://') || trimmedSrc.startsWith('https://')) {
+      return trimmedSrc;
     }
-    return src;
+    
+    // If src is a relative path starting with /uploads/ or contains uploads/, construct full backend URL
+    if (trimmedSrc.startsWith('/uploads/') || trimmedSrc.includes('uploads/')) {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+        (import.meta.env.PROD ? 'https://baby-adoption-backend.onrender.com' : 'http://localhost:8082');
+      return `${API_BASE_URL}${trimmedSrc.startsWith('/') ? trimmedSrc : '/' + trimmedSrc}`;
+    }
+    
+    // If src starts with /api/babies/images/, it's already a backend path - construct full URL
+    if (trimmedSrc.startsWith('/api/babies/images/')) {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+        (import.meta.env.PROD ? 'https://baby-adoption-backend.onrender.com' : 'http://localhost:8082');
+      return `${API_BASE_URL}${trimmedSrc}`;
+    }
+    
+    // For other relative paths starting with /, return as is (browser will handle)
+    if (trimmedSrc.startsWith('/')) {
+      return trimmedSrc;
+    }
+    
+    // For any other case, try to construct URL or return as is
+    return trimmedSrc;
   });
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
