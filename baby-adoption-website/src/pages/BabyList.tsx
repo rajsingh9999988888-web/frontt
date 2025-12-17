@@ -246,7 +246,15 @@ export default function BabyList(): React.JSX.Element {
         throw new Error('Failed to fetch baby posts');
       }
       const data = await response.json();
-      setBabyPosts(Array.isArray(data) ? data : []);
+      const posts = Array.isArray(data) ? data : [];
+      
+      // Debug: Log image URLs to see what we're receiving
+      console.log('[BabyList] Received posts:', posts.length);
+      posts.forEach((post: BabyPost, index: number) => {
+        console.log(`[BabyList] Post ${index + 1} (${post.name}): imageUrl =`, post.imageUrl);
+      });
+      
+      setBabyPosts(posts);
     } catch (err) {
       console.error(err);
       setError('Unable to reach live listings. Showing curated samples for now.');

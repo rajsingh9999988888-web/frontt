@@ -15,7 +15,7 @@ interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 export default function SafeImage({ src, fallback = FALLBACK_IMAGE, alt, className: imgClassName, ...props }: SafeImageProps) {
   const [imgSrc, setImgSrc] = useState<string>(() => {
     // If no src provided or empty, use fallback immediately
-    if (!src || src.trim() === '') {
+    if (!src || typeof src !== 'string' || src.trim() === '') {
       return fallback;
     }
     
@@ -26,27 +26,32 @@ export default function SafeImage({ src, fallback = FALLBACK_IMAGE, alt, classNa
       return trimmedSrc;
     }
     
+    // Get API base URL
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+      (import.meta.env.PROD ? 'https://baby-adoption-backend.onrender.com' : 'http://localhost:8082');
+    
     // If src is a relative path starting with /uploads/ or contains uploads/, construct full backend URL
     if (trimmedSrc.startsWith('/uploads/') || trimmedSrc.includes('uploads/')) {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-        (import.meta.env.PROD ? 'https://baby-adoption-backend.onrender.com' : 'http://localhost:8082');
       return `${API_BASE_URL}${trimmedSrc.startsWith('/') ? trimmedSrc : '/' + trimmedSrc}`;
     }
     
     // If src starts with /api/babies/images/, it's already a backend path - construct full URL
     if (trimmedSrc.startsWith('/api/babies/images/')) {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-        (import.meta.env.PROD ? 'https://baby-adoption-backend.onrender.com' : 'http://localhost:8082');
       return `${API_BASE_URL}${trimmedSrc}`;
     }
     
-    // For other relative paths starting with /, return as is (browser will handle)
-    if (trimmedSrc.startsWith('/')) {
-      return trimmedSrc;
+    // If src is just a filename (no path), assume it's in /api/babies/images/
+    if (!trimmedSrc.startsWith('/') && !trimmedSrc.includes('/')) {
+      return `${API_BASE_URL}/api/babies/images/${trimmedSrc}`;
     }
     
-    // For any other case, try to construct URL or return as is
-    return trimmedSrc;
+    // For other relative paths starting with /, construct full backend URL
+    if (trimmedSrc.startsWith('/')) {
+      return `${API_BASE_URL}${trimmedSrc}`;
+    }
+    
+    // For any other case, try to construct URL with backend base
+    return `${API_BASE_URL}/api/babies/images/${trimmedSrc}`;
   });
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
