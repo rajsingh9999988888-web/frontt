@@ -65,7 +65,7 @@ const categoryChips: Record<string, string[]> = {
 };
 
 const categoryImages: Record<string, string> = {
-  'call-girls': 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIF.5bu%252fZb2xmB2Jydpx3LY5OA%26cb%3Ducfimg2%26pid%3DApi%26ucfimg%3D1&f=1&ipt=7fcc5eeca04e162de30954c979949492c4669ff4b45760c5c4c6b3b9afbe24a4&ipo=images',
+  'call-girls': 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
   massage: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.x6RqQ25w0bmeq1a8IkzfoAHaFj%3Fcb%3Ducfimg2%26pid%3DApi%26ucfimg%3D1&f=1&ipt=7e7c761bcfd0cc339af8640df8ac01185c618c1fbb09eda3ca47b75580096ca0&ipo=images',
   'male-escorts': 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.explicit.bing.net%2Fth%2Fid%2FOIP.Gpc25SW3bpm70SBCld_f1AHaJo%3Fcb%3Ducfimg2%26pid%3DApi%26ucfimg%3D1&f=1&ipt=5ace293409e59978a78cb85bfbd555eaf79f2fe044fddfbed044c50a8b381506&ipo=images',
   transsexual: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.explicit.bing.net%2Fth%2Fid%2FOIP.OAuAnG7N-119tQz4JGNXagHaEn%3Fcb%3Ducfimg2%26pid%3DApi%26ucfimg%3D1&f=1&ipt=abc35bdbb35fe9812de1c99b65400e608293f2cbb7da96481b453ace90e714b6&ipo=images',
