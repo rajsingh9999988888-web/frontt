@@ -295,6 +295,31 @@ export default function Home(): React.JSX.Element {
         </section>
 
         <section className="space-y-6">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-300">Browse by State</p>
+            <p className="text-sm text-slate-500 dark:text-slate-300">Find listings in your state</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            {stateOptions.filter(state => state !== 'All States').map((state) => (
+              <button
+                key={state}
+                onClick={() =>
+                  goToListings({
+                    state,
+                    category: selectedCategory ? resolveCategoryLabel(selectedCategory) : null,
+                    city: selectedCity,
+                    query: searchTerm,
+                  })
+                }
+                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[#ff4f70] hover:bg-[#ff4f70] hover:text-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-[#ff4f70]"
+              >
+                {state}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {promoBanners.map((banner) => (
               <article
