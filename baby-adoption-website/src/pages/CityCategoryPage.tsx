@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { API_BASE_URL } from '../config/api';
+import SafeImage from '../components/SafeImage';
 
 type BabyPost = {
   id: number;
@@ -178,7 +179,7 @@ export default function CityCategoryPage(): React.JSX.Element {
                     <div className="relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
                       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent}`} />
                       <Link to={`/baby-detail/${post.id}`}>
-                        <img
+                        <SafeImage
                           src={post.imageUrl}
                           alt={post.name}
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"

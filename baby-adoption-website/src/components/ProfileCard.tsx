@@ -1,4 +1,5 @@
 import React from 'react';
+import SafeImage from './SafeImage';
 
 export type ProfileCardData = {
   id: number;
@@ -40,7 +41,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ post }) => {
       )}
 
       <div className="relative aspect-[4/3] w-full overflow-hidden">
-        <img
+        <SafeImage
           src={post.imageUrl}
           alt={post.name}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"

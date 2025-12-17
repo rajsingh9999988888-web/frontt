@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
+import SafeImage from '../components/SafeImage';
 
 type Baby = {
   id: number;
@@ -180,7 +181,7 @@ export default function BabyDetail() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <section className="space-y-6">
             <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200/60 bg-slate-100 shadow-lg shadow-slate-900/10 dark:border-slate-800/60 dark:bg-slate-900/50 dark:shadow-slate-900/50">
-              <img src={imageSrc} alt={baby.name} className="h-80 w-full object-cover" loading="lazy" />
+              <SafeImage src={baby.imageUrl} alt={baby.name} className="h-80 w-full object-cover" loading="lazy" />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-6 py-6 text-white">
                 <p className="text-[0.65rem] uppercase tracking-[0.35em] text-white/70">Profile</p>
                 <h1 className="text-3xl font-bold tracking-tight">{baby.name}</h1>
