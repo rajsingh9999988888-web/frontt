@@ -11,6 +11,47 @@ type FeaturedCategory = {
 const stateOptions = ['All States', 'Delhi', 'Maharashtra', 'Karnataka', 'Telangana', 'Tamil Nadu', 'West Bengal'];
 const cityOptions = ['All cities', 'Delhi', 'Mumbai', 'Bengaluru', 'Hyderabad', 'Kolkata', 'Pune'];
 
+type StateData = {
+  state: string;
+  capital: string;
+  districts: string[];
+};
+
+const allStatesData: StateData[] = [
+  { state: 'Andhra Pradesh', capital: 'Amaravati', districts: ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Nellore', 'Kurnool'] },
+  { state: 'Arunachal Pradesh', capital: 'Itanagar', districts: ['Tawang', 'West Kameng', 'East Kameng', 'Papum Pare', 'Lower Subansiri'] },
+  { state: 'Assam', capital: 'Dispur', districts: ['Guwahati', 'Jorhat', 'Dibrugarh', 'Silchar', 'Tezpur'] },
+  { state: 'Bihar', capital: 'Patna', districts: ['Patna', 'Gaya', 'Bhagalpur', 'Muzaffarpur', 'Darbhanga'] },
+  { state: 'Chhattisgarh', capital: 'Raipur', districts: ['Raipur', 'Bilaspur', 'Durg', 'Korba', 'Jagdalpur'] },
+  { state: 'Goa', capital: 'Panaji', districts: ['North Goa', 'South Goa', 'Ponda', 'Margao', 'Mapusa'] },
+  { state: 'Gujarat', capital: 'Gandhinagar', districts: ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Jamnagar'] },
+  { state: 'Haryana', capital: 'Chandigarh', districts: ['Gurgaon', 'Faridabad', 'Panipat', 'Karnal', 'Ambala'] },
+  { state: 'Himachal Pradesh', capital: 'Shimla', districts: ['Shimla', 'Manali', 'Dharamshala', 'Kullu', 'Solan'] },
+  { state: 'Jharkhand', capital: 'Ranchi', districts: ['Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro', 'Hazaribagh'] },
+  { state: 'Karnataka', capital: 'Bengaluru', districts: ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubli', 'Belagavi'] },
+  { state: 'Kerala', capital: 'Thiruvananthapuram', districts: ['Kochi', 'Kozhikode', 'Thrissur', 'Kannur', 'Alappuzha'] },
+  { state: 'Madhya Pradesh', capital: 'Bhopal', districts: ['Indore', 'Bhopal', 'Gwalior', 'Jabalpur', 'Ujjain'] },
+  { state: 'Maharashtra', capital: 'Mumbai', districts: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'] },
+  { state: 'Manipur', capital: 'Imphal', districts: ['Imphal', 'Thoubal', 'Bishnupur', 'Churachandpur', 'Ukhrul'] },
+  { state: 'Meghalaya', capital: 'Shillong', districts: ['Shillong', 'Tura', 'Jowai', 'Nongpoh', 'Williamnagar'] },
+  { state: 'Mizoram', capital: 'Aizawl', districts: ['Aizawl', 'Lunglei', 'Saiha', 'Champhai', 'Kolasib'] },
+  { state: 'Nagaland', capital: 'Kohima', districts: ['Kohima', 'Dimapur', 'Mokokchung', 'Tuensang', 'Wokha'] },
+  { state: 'Odisha', capital: 'Bhubaneswar', districts: ['Bhubaneswar', 'Cuttack', 'Puri', 'Rourkela', 'Sambalpur'] },
+  { state: 'Punjab', capital: 'Chandigarh', districts: ['Amritsar', 'Ludhiana', 'Jalandhar', 'Patiala', 'Bathinda'] },
+  { state: 'Rajasthan', capital: 'Jaipur', districts: ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota', 'Ajmer'] },
+  { state: 'Sikkim', capital: 'Gangtok', districts: ['Gangtok', 'Namchi', 'Mangan', 'Gyalshing', 'Soreng'] },
+  { state: 'Tamil Nadu', capital: 'Chennai', districts: ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'] },
+  { state: 'Telangana', capital: 'Hyderabad', districts: ['Hyderabad', 'Warangal', 'Nizamabad', 'Karimnagar', 'Khammam'] },
+  { state: 'Tripura', capital: 'Agartala', districts: ['Agartala', 'Udaipur', 'Dharmanagar', 'Kailashahar', 'Belonia'] },
+  { state: 'Uttar Pradesh', capital: 'Lucknow', districts: ['Lucknow', 'Kanpur', 'Agra', 'Varanasi', 'Allahabad'] },
+  { state: 'Uttarakhand', capital: 'Dehradun', districts: ['Dehradun', 'Haridwar', 'Nainital', 'Mussoorie', 'Rishikesh'] },
+  { state: 'West Bengal', capital: 'Kolkata', districts: ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'] },
+  { state: 'Delhi', capital: 'New Delhi', districts: ['New Delhi', 'Central Delhi', 'North Delhi', 'South Delhi', 'East Delhi'] },
+  { state: 'Jammu and Kashmir', capital: 'Srinagar', districts: ['Srinagar', 'Jammu', 'Anantnag', 'Baramulla', 'Udhampur'] },
+  { state: 'Ladakh', capital: 'Leh', districts: ['Leh', 'Kargil', 'Nubra', 'Zanskar', 'Drass'] },
+  { state: 'Puducherry', capital: 'Puducherry', districts: ['Puducherry', 'Karaikal', 'Mahe', 'Yanam', 'Ozhukarai'] },
+];
+
 const featuredCategories: FeaturedCategory[] = [
   {
     id: 'call-girls',
@@ -133,15 +174,17 @@ export default function Home(): React.JSX.Element {
     return match?.label ?? slug;
   };
 
-  const goToListings = (options: { category?: string | null; state?: string | null; city?: string | null; query?: string | null } = {}) => {
+  const goToListings = (options: { category?: string | null; state?: string | null; district?: string | null; city?: string | null; query?: string | null } = {}) => {
     const params = new URLSearchParams();
     const categoryValue = options.category && options.category !== 'all' ? options.category : null;
     const stateValue = options.state && options.state !== 'All States' ? options.state : null;
+    const districtValue = options.district && options.district !== 'All Districts' ? options.district : null;
     const cityValue = options.city && options.city !== 'All cities' ? options.city : null;
     const queryValue = options.query && options.query.trim().length > 0 ? options.query.trim() : null;
 
     if (categoryValue) params.set('category', categoryValue);
     if (stateValue) params.set('state', stateValue);
+    if (districtValue) params.set('district', districtValue);
     if (cityValue) params.set('city', cityValue);
     if (queryValue) params.set('q', queryValue);
 
@@ -294,27 +337,54 @@ export default function Home(): React.JSX.Element {
           ))}
         </section>
 
-        <section className="space-y-6">
+        <section className="space-y-10">
           <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-300">Browse by State</p>
-            <p className="text-sm text-slate-500 dark:text-slate-300">Find listings in your state</p>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-2xl">💋</span>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Call Girls</h2>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-300">Browse by State, Capital & Districts</p>
           </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            {stateOptions.filter(state => state !== 'All States').map((state) => (
-              <button
-                key={state}
-                onClick={() =>
-                  goToListings({
-                    state,
-                    category: selectedCategory ? resolveCategoryLabel(selectedCategory) : null,
-                    city: selectedCity,
-                    query: searchTerm,
-                  })
-                }
-                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[#ff4f70] hover:bg-[#ff4f70] hover:text-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-[#ff4f70]"
-              >
-                {state}
-              </button>
+          
+          <div className="space-y-10">
+            {allStatesData.map((stateData) => (
+              <div key={stateData.state} className="space-y-3">
+                <div className="flex items-center gap-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{stateData.state}</h3>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Capital: {stateData.capital}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-3 gap-y-2">
+                  <button
+                    onClick={() =>
+                      goToListings({
+                        state: stateData.state,
+                        city: stateData.capital,
+                        category: selectedCategory ? resolveCategoryLabel(selectedCategory) : null,
+                        query: searchTerm,
+                      })
+                    }
+                    className="text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:text-[#ff4f70] transition underline decoration-[#ff4f70]"
+                  >
+                    &gt; {stateData.capital}
+                  </button>
+                  {stateData.districts.map((district) => (
+                    <button
+                      key={district}
+                      onClick={() =>
+                        goToListings({
+                          state: stateData.state,
+                          district: district,
+                          category: selectedCategory ? resolveCategoryLabel(selectedCategory) : null,
+                          query: searchTerm,
+                        })
+                      }
+                      className="text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:text-[#ff4f70] transition underline decoration-[#ff4f70]"
+                    >
+                      &gt; {district}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </section>
