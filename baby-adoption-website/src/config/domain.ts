@@ -10,7 +10,7 @@
 
 // Update this with your actual production domain
 // For production, use environment variable VITE_SITE_DOMAIN instead
-export const SITE_DOMAIN = import.meta.env.VITE_SITE_DOMAIN || 'https://yourdomain.com'; // ← CHANGE THIS
+export const SITE_DOMAIN = import.meta.env.VITE_SITE_DOMAIN || 'https://nightsathi.com'; // ← Updated to nightsathi.com
 
 // Get site domain (uses env var if available, otherwise uses constant)
 export const getSiteDomain = (): string => {

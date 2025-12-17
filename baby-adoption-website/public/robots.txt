@@ -24,8 +24,8 @@ Disallow: /my-ads
 Disallow: /buy-credits
 Disallow: /coupons
 
-# Sitemap location (update with your actual domain)
-Sitemap: https://yourdomain.com/sitemap.xml
+# Sitemap location
+Sitemap: https://nightsathi.com/sitemap.xml
 
 # Crawl delay (optional - adjust if needed)
 Crawl-delay: 1
