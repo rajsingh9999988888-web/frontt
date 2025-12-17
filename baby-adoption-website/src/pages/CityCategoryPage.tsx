@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { API_BASE_URL } from '../config/api';
+import { buildCanonicalUrl } from '../config/domain';
 import SafeImage from '../components/SafeImage';
 
 type BabyPost = {
@@ -116,7 +117,7 @@ export default function CityCategoryPage(): React.JSX.Element {
   }, [cityParam, categorySlug]);
 
   // Generate canonical URL
-  const canonicalUrl = `https://mydomain.com/${cityParam}/${categoryParam}`;
+  const canonicalUrl = buildCanonicalUrl(`/${cityParam}/${categoryParam}`);
 
   return (
     <React.Fragment>

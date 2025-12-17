@@ -1,0 +1,32 @@
+# robots.txt for BabyAdopt
+# This file tells search engines which pages to crawl
+
+User-agent: *
+Allow: /
+
+# Allow all search engines to crawl
+Allow: /baby-list
+Allow: /add-post
+Allow: /baby-detail/
+
+# Allow city-based search pages
+Allow: /*/call-girls-stores
+Allow: /*/massage-stores
+Allow: /*/male-escorts-stores
+Allow: /*/transsexual-stores
+Allow: /*/adult-meetings-stores
+
+# Disallow admin and private pages
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /account-settings
+Disallow: /my-ads
+Disallow: /buy-credits
+Disallow: /coupons
+
+# Sitemap location (update with your actual domain)
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay (optional - adjust if needed)
+Crawl-delay: 1
+
