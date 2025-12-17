@@ -15,6 +15,7 @@ import AccountSettings from './pages/AccountSettings';
 import Coupons from './pages/Coupons';
 import BuyCredits from './pages/BuyCredits';
 import UserAds from './pages/UserAds';
+import CityCategoryPage from './pages/CityCategoryPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -75,6 +76,10 @@ export default function App(): React.JSX.Element {
           <Route path="/baby-detail/:id" element={<BabyDetail />} />
           <Route path="/login-signup" element={<LoginSignup />} />
           <Route path="/employee-register" element={<Navigate to="/login-signup" />} />
+          
+          {/* Dynamic city-based search route */}
+          {/* Example: /bhopal/call-girls-stores, /mumbai/massage-stores */}
+          <Route path="/:city/:category-stores" element={<CityCategoryPage />} />
 
           <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

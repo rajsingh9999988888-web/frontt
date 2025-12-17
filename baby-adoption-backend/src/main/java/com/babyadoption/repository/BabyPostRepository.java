@@ -22,5 +22,8 @@ public interface BabyPostRepository extends JpaRepository<BabyPost, Integer> {
     List<BabyPost> findByStateAndDistrict(String state, String district);
     
     Optional<BabyPost> findByIdAndStatus(Integer id, PostStatus status);
+    
+    // Dynamic city-based search method (case-insensitive)
+    List<BabyPost> findByCityIgnoreCaseAndCategoryIgnoreCase(String city, String category);
 }
 
