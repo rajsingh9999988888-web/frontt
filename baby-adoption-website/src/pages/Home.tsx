@@ -203,10 +203,12 @@ export default function Home(): React.JSX.Element {
   return (
     <React.Fragment>
       <Helmet>
-        <title>BabyAdopt — Browse adoption listings</title>
-        <meta name="description" content="Browse verified adoption listings and connect with adoptive parents. Search by city, category and more on BabyAdopt." />
-        <meta property="og:title" content="BabyAdopt — Browse adoption listings" />
-        <meta property="og:description" content="Browse verified adoption listings and connect with adoptive parents on BabyAdopt." />
+        <title>BabyAdopt - Call Girls, Massage, Escorts in India | Verified Listings</title>
+        <meta name="description" content="BabyAdopt - Find verified call girls, massage services, and escorts in all cities of India. Browse by city, state, and category. Mumbai, Delhi, Bangalore, Hyderabad, Pune, Chennai, Kolkata and more." />
+        <meta name="keywords" content="call girls, massage, escorts, call girls india, call girls mumbai, call girls delhi, call girls bangalore, call girls hyderabad, verified escorts, independent call girls, babyadopt" />
+        <meta property="og:title" content="BabyAdopt - Call Girls, Massage, Escorts in India" />
+        <meta property="og:description" content="Find verified call girls, massage services, and escorts in all cities of India. Browse by city, state, and category." />
+        <meta property="og:type" content="website" />
       </Helmet>
       <div className="min-h-screen bg-[#f6f7fb] text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
       <section className="relative min-h-[90vh] overflow-hidden border-b border-slate-200 bg-slate-900 text-white transition-colors duration-300 dark:border-slate-800">

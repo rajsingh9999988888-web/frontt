@@ -93,16 +93,13 @@ export default function Navbar(): React.JSX.Element {
       <style>{animationStyles}</style>
       <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl shadow-sm transition-colors duration-300 dark:border-slate-800/70 dark:bg-slate-900/75">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-          <NavLink to="/" onClick={handleNavSelection()} className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff4f70] to-[#ff884f] text-white shadow-md shadow-[#ff4f70]/30 font-bold ">
-              BA
-            </div>
+          <NavLink to="/" onClick={handleNavSelection()} className="flex items-center gap-2">
             <div className="leading-tight">
-              <span
-                className="block text-[1.35rem] font-black uppercase tracking-[0.12em] text-[#ff4f70]"
-                style={{ animation: 'brandDrift 2.4s cubic-bezier(0.19, 1, 0.22, 1) forwards', animationDelay: '0.25s', opacity: 0 }}
-              >
+              <span className="block text-2xl font-black text-[#ff4f70] dark:text-[#ff4f70]">
                 BabyAdopt
+              </span>
+              <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                Call Girls • Massage • Escorts
               </span>
             </div>
           </NavLink>
