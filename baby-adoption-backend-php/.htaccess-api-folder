@@ -1,0 +1,45 @@
+# PHP Backend - .htaccess for api folder
+# Ye file api folder ke andar honi chahiye
+
+RewriteEngine On
+RewriteBase /api/
+
+# CORS headers
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+# API routing
+# /api/health -> health.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^health$ health.php [L]
+
+# /api/users/* -> users.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^users(.*)$ users.php [L,QSA]
+
+# /api/babies/* -> babies.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^babies(.*)$ babies.php [L,QSA]
+
+# /api/search/* -> search.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^search(.*)$ search.php [L,QSA]
+
+# PHP settings
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value memory_limit 256M
+
+# Error handling
+php_flag display_errors Off
+php_flag log_errors On
+

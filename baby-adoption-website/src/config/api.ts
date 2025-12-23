@@ -13,16 +13,17 @@ const getApiBaseUrl = (): string => {
     }
   }
   
-  // Check if we're in production (Vercel deployment)
+  // Check if we're in production (Hostinger deployment)
   if (import.meta.env.PROD) {
-    // Default production URL - Render backend
-    const prodUrl = 'https://baby-adoption-backend.onrender.com';
+    // Default production URL - Hostinger backend
+    const prodUrl = 'https://nightsaathi.com/api';
     console.log('[API Config] Production mode, using:', prodUrl);
     return prodUrl;
   }
   
-  // Development: use localhost
-  const devUrl = 'http://localhost:8082';
+  // Development: use production API (for testing)
+  // To use local PHP server, change to: 'http://localhost:8082'
+  const devUrl = 'https://nightsaathi.com/api';
   console.log('[API Config] Development mode, using:', devUrl);
   return devUrl;
 };

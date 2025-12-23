@@ -14,7 +14,7 @@ type ContactMethod = 'phone' | 'both' | 'email';
 type MultiSelectKey = 'services' | 'attention' | 'placeOfService';
 
 const fetchOptions = async (path: string): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/babies${path}`);
+  const response = await fetch(`${API_BASE_URL}/babies${path}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${path}`);
   }
@@ -92,7 +92,7 @@ const createInitialFormState = (): FormState => ({
 });
 
 export default function AddPost() {
-  const { token, isLoggedIn, setRedirectPath } = useAuth();
+  const { token, isLoggedIn, setRedirectPath, canAddPost } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FormState>(createInitialFormState);
@@ -115,6 +115,14 @@ export default function AddPost() {
   };
 
   useEffect(() => setShowLoginPrompt(!isLoggedIn), [isLoggedIn]);
+
+  // Check permission when user logs in
+  useEffect(() => {
+    if (isLoggedIn && !canAddPost()) {
+      alert('Access denied: Only employees and admins can add posts.');
+      navigate('/');
+    }
+  }, [isLoggedIn, canAddPost, navigate]);
 
   useEffect(() => {
     const loadStates = async () => {
@@ -220,6 +228,12 @@ export default function AddPost() {
       setShowLoginPrompt(true);
       return false;
     }
+    // Check if user has permission to add posts
+    if (!canAddPost()) {
+      alert('Access denied: Only employees and admins can add posts. Please login with an employee or admin account.');
+      navigate('/');
+      return false;
+    }
     return true;
   }
 
@@ -283,6 +297,7 @@ export default function AddPost() {
 
   const submitPost = async () => {
     if (!ensureLoggedIn()) return;
+    // Any logged-in user can add posts now
     if (!formData.agreeTerms) return alert('You must accept Terms & Conditions');
     if (!formData.name.trim()) return alert('Enter your profile name');
     if (!formData.state || !formData.district || !formData.city) return alert('Select your full location');
@@ -327,7 +342,7 @@ export default function AddPost() {
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch(`${API_BASE_URL}/api/babies/babies`, {
+      const res = await fetch(`${API_BASE_URL}/babies`, {
         method: 'POST',
         headers,
         body: form,

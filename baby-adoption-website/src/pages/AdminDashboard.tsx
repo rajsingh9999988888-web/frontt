@@ -39,7 +39,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts`, {
+      const response = await fetch(`${API_BASE_URL}/babies/admin/posts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -127,17 +127,21 @@ export default function AdminDashboard() {
 
   const handleApprove = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${id}/approve`, {
+      const response = await fetch(`${API_BASE_URL}/babies/admin/posts/${id}/approve`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to approve post');
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to approve post');
       }
+      // Update state immediately
       setAllPosts((prev) => prev.map((post) => post.id === id ? { ...post, status: 'APPROVED' } : post));
       setApprovalsToday((prev) => prev + 1);
+      // Refresh to ensure data is in sync
+      fetchPosts();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Network error');
     }
@@ -145,7 +149,7 @@ export default function AdminDashboard() {
 
   const handleReject = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${id}/reject`, {
+      const response = await fetch(`${API_BASE_URL}/babies/admin/posts/${id}/reject`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -166,15 +170,24 @@ export default function AdminDashboard() {
       return;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${id}/delete`, {
+      const response = await fetch(`${API_BASE_URL}/babies/admin/posts/${id}/delete`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to delete post');
+        const errorText = await response.text();
+        let errorMessage = 'Failed to delete post';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
+      // Update state immediately
       setAllPosts((prev) => prev.filter((post) => post.id !== id));
       setFilteredPosts((prev) => prev.filter((post) => post.id !== id));
       setDeletionsToday((prev) => prev + 1);
@@ -190,7 +203,7 @@ export default function AdminDashboard() {
       return;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/babies/admin/fix-image-urls`, {
+      const response = await fetch(`${API_BASE_URL}/babies/admin/fix-image-urls`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -227,7 +240,7 @@ export default function AdminDashboard() {
     try {
       let deleted = 0;
       for (const post of oldPosts) {
-        const response = await fetch(`${API_BASE_URL}/api/babies/admin/posts/${post.id}/delete`, {
+        const response = await fetch(`${API_BASE_URL}/babies/admin/posts/${post.id}/delete`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -313,7 +326,7 @@ export default function AdminDashboard() {
                 Fix URLs
               </button>
               <button
-                onClick={() => fetchPosts(filterStatus === 'all' ? undefined : filterStatus)}
+                onClick={() => fetchPosts()}
                 className="inline-flex items-center gap-2 rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                 disabled={loading}
               >

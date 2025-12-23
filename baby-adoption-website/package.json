@@ -22,6 +22,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "upload": "npm run build && powershell -ExecutionPolicy Bypass -File auto-upload-ftp.ps1",
+    "upload-only": "powershell -ExecutionPolicy Bypass -File auto-upload-ftp.ps1",
+    "build-upload": "powershell -ExecutionPolicy Bypass -File auto-upload-ftp.ps1 -Build"
   }
 }

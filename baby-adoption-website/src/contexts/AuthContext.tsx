@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isEmployee = (): boolean => !!(user && user.role === 'EMPLOYEE');
 
-  // Backend now allows any authenticated user to add posts.
+  // Any logged-in user can add posts
   const canAddPost = (): boolean => isLoggedIn;
 
   return (

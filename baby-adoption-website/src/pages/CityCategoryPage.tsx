@@ -95,7 +95,7 @@ export default function CityCategoryPage(): React.JSX.Element {
       try {
         // Call the search API
         const response = await fetch(
-          `${API_BASE_URL}/api/search/${encodeURIComponent(cityParam)}/${encodeURIComponent(categorySlug)}`
+          `${API_BASE_URL}/search/${encodeURIComponent(cityParam)}/${encodeURIComponent(categorySlug)}`
         );
 
         if (!response.ok) {

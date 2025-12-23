@@ -67,7 +67,7 @@ export default function BabyDetail() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/babies/babies/${id}`);
+        const response = await fetch(`${API_BASE_URL}/babies/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch baby details');
         }

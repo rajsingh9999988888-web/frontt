@@ -93,7 +93,7 @@ export default function LoginSignup(): React.JSX.Element {
 
     try {
       if (!isSignup) {
-        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+        const response = await fetch(`${API_BASE_URL}/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: formData.email, password: formData.password }),
@@ -101,7 +101,14 @@ export default function LoginSignup(): React.JSX.Element {
 
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-          throw new Error(data.message || 'Unable to login right now.');
+          // Better error message with actual server error
+          const errorMsg = data.error || data.message || `Login failed (${response.status}). Please check your credentials.`;
+          throw new Error(errorMsg);
+        }
+
+        // Verify token and role received
+        if (!data.token) {
+          throw new Error('Login failed: No token received from server.');
         }
 
         const role = data.role || 'NORMAL';
@@ -140,7 +147,7 @@ export default function LoginSignup(): React.JSX.Element {
               address: formData.address,
             };
 
-      const response = await fetch(`${API_BASE_URL}/api/users/signup`, {
+      const response = await fetch(`${API_BASE_URL}/users/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

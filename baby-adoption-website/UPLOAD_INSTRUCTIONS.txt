@@ -1,0 +1,71 @@
+===========================================
+AUTOMATIC UPLOAD - HOSTINGER
+===========================================
+
+METHOD 1: SFTP Extension (Recommended)
+--------------------------------------
+
+1. Install SFTP Extension:
+   - Cursor/VS Code → Extensions (Ctrl+Shift+X)
+   - Search: "SFTP" by Natizyskunk
+   - Install karo
+
+2. Upload dist/ folder:
+   - dist/ folder par right-click
+   - Select: "SFTP: Upload Folder"
+   - Files automatically upload ho jayengi
+
+3. Auto-upload on build:
+   - Command: npm run build
+   - dist/ folder update hoga
+   - dist/ folder par right-click → "SFTP: Upload Folder"
+
+
+METHOD 2: Manual Upload (If SFTP not working)
+-----------------------------------------------
+
+1. dist/ folder ko zip karo:
+   - dist/ folder par right-click
+   - Send to → Compressed (zipped) folder
+   - dist.zip create ho jayega
+
+2. Hostinger File Manager:
+   - Login to Hostinger hPanel
+   - File Manager → public_html/
+   - Upload → dist.zip select karo
+   - Upload karo
+
+3. Extract karo:
+   - dist.zip par right-click → Extract
+   - Extract location: public_html/
+
+4. Files move karo:
+   - dist/ folder ke andar ki files public_html/ mein move karo
+   - dist/ folder delete karo
+
+
+QUICK COMMANDS:
+---------------
+
+Build + Upload Instructions:
+  npm run upload
+
+Build Only:
+  npm run build
+
+Upload Only (if SFTP extension installed):
+  dist/ folder → Right-click → SFTP: Upload Folder
+
+
+SFTP Config Location:
+---------------------
+.vscode/sftp.json (Already configured!)
+
+Credentials:
+- Host: 62.72.15.26
+- Username: u834279997
+- Remote Path: /public_html
+
+
+===========================================
+

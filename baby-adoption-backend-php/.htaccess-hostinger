@@ -1,0 +1,62 @@
+# Hostinger Production .htaccess
+# Backend API folder mein is file ko .htaccess naam se save karo
+
+RewriteEngine On
+RewriteBase /api/
+
+# CORS headers (Hostinger compatible)
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+# API routing
+# /api/users/* -> users.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^users(.*)$ users.php [L,QSA]
+
+# /api/babies/* -> babies.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^babies(.*)$ babies.php [L,QSA]
+
+# /api/search/* -> search.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^search(.*)$ search.php [L,QSA]
+
+# /api/health -> health.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^health$ health.php [L]
+
+# PHP settings (Hostinger compatible)
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value memory_limit 256M
+
+# Error handling (Production)
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log logs/php_errors.log
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "\.(env|log|ini|sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+

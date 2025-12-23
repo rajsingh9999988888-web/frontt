@@ -1,0 +1,75 @@
+-- Database Setup SQL Script
+-- XAMPP phpMyAdmin mein run karo
+
+-- Database create karo (agar nahi hai)
+CREATE DATABASE IF NOT EXISTS `fun` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE `fun`;
+
+-- Users table
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('NORMAL','EMPLOYEE','ADMIN') DEFAULT 'NORMAL',
+  `mobile` varchar(20) DEFAULT NULL,
+  `full_name` varchar(255) DEFAULT NULL,
+  `primary_skill` varchar(255) DEFAULT NULL,
+  `experience` varchar(255) DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `recruiter_name` varchar(255) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Baby posts table
+CREATE TABLE IF NOT EXISTS `baby_posts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `whatsapp` varchar(20) DEFAULT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `district` varchar(100) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `postalcode` varchar(10) DEFAULT NULL,
+  `age` int(11) DEFAULT 0,
+  `nickname` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `text` text DEFAULT NULL,
+  `ethnicity` varchar(100) DEFAULT NULL,
+  `nationality` varchar(100) DEFAULT NULL,
+  `bodytype` varchar(100) DEFAULT NULL,
+  `services` text DEFAULT NULL,
+  `place` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('PENDING','APPROVED','REJECTED') DEFAULT 'PENDING',
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `status` (`status`),
+  KEY `state` (`state`),
+  KEY `district` (`district`),
+  KEY `city` (`city`),
+  KEY `category` (`category`),
+  KEY `created_at` (`created_at`),
+  CONSTRAINT `fk_baby_posts_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Test Admin User (Optional)
+-- Password: admin123
+INSERT INTO `users` (`email`, `password`, `role`, `full_name`, `mobile`) 
+VALUES ('admin@example.com', 'admin123', 'ADMIN', 'Admin User', '1234567890')
+ON DUPLICATE KEY UPDATE `email`=`email`;
+
+-- Test Employee User (Optional)
+-- Password: employee123
+INSERT INTO `users` (`email`, `password`, `role`, `company_name`, `recruiter_name`, `mobile`, `address`) 
+VALUES ('employee@example.com', 'employee123', 'EMPLOYEE', 'Test Company', 'Test Recruiter', '1234567890', 'Test Address')
+ON DUPLICATE KEY UPDATE `email`=`email`;
+

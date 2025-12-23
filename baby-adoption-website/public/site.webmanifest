@@ -4,14 +4,9 @@
   "description": "Adoption listings & trusted adoption posts",
   "icons": [
     {
-      "src": "/favicon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
     }
   ],
   "theme_color": "#ff4f70",

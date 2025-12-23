@@ -1,0 +1,26 @@
+[Unit]
+Description=Baby Adoption Backend Service
+After=syslog.target network.target mysql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/baby-adoption
+EnvironmentFile=/var/www/baby-adoption/.env
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar /var/www/baby-adoption/baby-adoption-backend-0.0.1-SNAPSHOT.jar
+ExecStop=/bin/kill -15 $MAINPID
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=baby-adoption-backend
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/www/baby-adoption/uploads /var/www/baby-adoption/logs
+
+[Install]
+WantedBy=multi-user.target
+

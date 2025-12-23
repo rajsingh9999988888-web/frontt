@@ -1,0 +1,63 @@
+# PHP Backend - .htaccess for api folder
+# Ye file api folder ke andar honi chahiye
+
+RewriteEngine On
+RewriteBase /api/
+
+# Set directory index
+DirectoryIndex index.php
+
+# CORS headers - Backup in .htaccess (PHP file primary)
+# PHP file se handle hoga, but .htaccess backup ke liye
+<IfModule mod_headers.c>
+    # Allow all origins for development (PHP will override with specific origin)
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+    Header always set Access-Control-Allow-Credentials "true"
+    Header always set Access-Control-Max-Age "3600"
+</IfModule>
+
+# Handle OPTIONS preflight requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ - [R=200,L]
+
+# Handle root /api/ access - redirect to health
+RewriteCond %{REQUEST_URI} ^/api/?$
+RewriteRule ^(.*)$ health.php [L]
+
+# Allow direct PHP file access (fix-admin-login.php, create-admin.php, etc.)
+# Agar file exists hai to directly serve karo
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} \.php$
+RewriteRule ^(.*)$ - [L]
+
+# API routing
+# /api/health -> health.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^health/?$ health.php [L]
+
+# /api/users/* -> users.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^users/?(.*)$ users.php [L,QSA]
+
+# /api/babies/* -> babies.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^babies/?(.*)$ babies.php [L,QSA]
+
+# /api/search/* -> search.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^search/?(.*)$ search.php [L,QSA]
+
+# PHP settings
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value memory_limit 256M
+
+# Error handling
+php_flag display_errors Off
+php_flag log_errors On

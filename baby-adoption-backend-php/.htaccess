@@ -1,0 +1,43 @@
+# PHP Backend - .htaccess for Shared Hosting
+# Apache mod_rewrite enable hona chahiye
+
+RewriteEngine On
+RewriteBase /
+
+# CORS headers - PHP file se handle hoga (cors.php)
+# Root .htaccess se CORS remove kiya - api/.htaccess aur PHP se handle hoga
+
+# Allow direct access to static files (favicon, images, CSS, JS, etc.)
+# Static files ko directly serve karo, API routing se pehle
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^(.*)$ - [L]
+
+# API routing
+# /api/users/* -> api/users.php
+RewriteCond %{REQUEST_URI} ^/api/users
+RewriteRule ^api/users(.*)$ api/users.php [L,QSA]
+
+# /api/babies/* -> api/babies.php
+RewriteCond %{REQUEST_URI} ^/api/babies
+RewriteRule ^api/babies(.*)$ api/babies.php [L,QSA]
+
+# /api/search/* -> api/search.php
+RewriteCond %{REQUEST_URI} ^/api/search
+RewriteRule ^api/search(.*)$ api/search.php [L,QSA]
+
+# /api/health -> api/health.php
+RewriteCond %{REQUEST_URI} ^/api/health
+RewriteRule ^api/health$ api/health.php [L]
+
+# PHP settings
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value memory_limit 256M
+
+# Error handling
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log logs/php_errors.log
+
