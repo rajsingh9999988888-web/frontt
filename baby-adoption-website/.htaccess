@@ -4,6 +4,10 @@
 RewriteEngine On
 RewriteBase /
 
+# Allow direct access to sitemap.xml and robots.txt
+RewriteCond %{REQUEST_URI} ^/(sitemap\.xml|robots\.txt)$ [NC]
+RewriteRule . - [L]
+
 # Handle Angular/React Router - All routes to index.html
 # Agar file ya directory exist nahi karti, to index.html serve karo
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -16,6 +20,10 @@ RewriteRule . /index.html [L]
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set X-XSS-Protection "1; mode=block"
+    # Set proper content type for XML files
+    <FilesMatch "\.xml$">
+        Header set Content-Type "text/xml; charset=utf-8"
+    </FilesMatch>
 </IfModule>
 
 # Enable compression
