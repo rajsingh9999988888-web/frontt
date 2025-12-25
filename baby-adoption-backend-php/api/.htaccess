@@ -45,7 +45,7 @@ RewriteRule ^users/?(.*)$ users.php [L,QSA]
 # /api/babies/* -> babies.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^babies/?(.*)$ babies.php [L,QSA]
+RewriteRule ^babies/?(.*)$ babies.php/$1 [L,QSA]
 
 # /api/search/* -> search.php
 RewriteCond %{REQUEST_FILENAME} !-f

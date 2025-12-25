@@ -12,21 +12,31 @@ require_once __DIR__ . '/config/location-data.php';
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path = $_SERVER['REQUEST_URI'] ?? '';
 
-// Remove query string first
-$path = strtok($path, '?');
+// Get path from REQUEST_URI or PATH_INFO (PATH_INFO is more reliable after .htaccess rewrite)
+$path = '';
+if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
+    // PATH_INFO contains the path after the script name (more reliable for rewrites)
+    $path = $_SERVER['PATH_INFO'];
+} else {
+    // Fallback to REQUEST_URI - extract path after /api/babies/
+    $path = $_SERVER['REQUEST_URI'] ?? '';
+    // Remove query string
+    $path = strtok($path, '?');
+    // Remove /api/babies prefix if present
+    $path = preg_replace('#^/api/babies/?#', '', $path);
+    // Remove /babies.php if present
+    $path = preg_replace('#^/babies\.php/?#', '', $path);
+}
 
-// Remove /api prefix if present (for .htaccess routing)
-$path = preg_replace('#^/api#', '', $path);
-// Also handle case where path might start with babies directly (after .htaccess rewrite)
+// Clean up the path
 $path = ltrim($path, '/');
 $pathParts = explode('/', $path);
 // Remove empty parts and re-index
 $pathParts = array_values(array_filter($pathParts, function($part) { return $part !== '' && $part !== null; }));
 
-// Debug logging (can be removed in production)
-// error_log("Method: $method, Path: $path, PathParts: " . json_encode($pathParts));
+// Debug logging (temporarily enabled for production debugging)
+error_log("Method: $method, REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'N/A') . ", PATH_INFO: " . ($_SERVER['PATH_INFO'] ?? 'N/A') . ", Path: $path, PathParts: " . json_encode($pathParts));
 
 // Backend base URL - production
 $backendBaseUrl = getenv('BACKEND_BASE_URL') ?: 'https://nightsaathi.com';
@@ -41,62 +51,66 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Route handling - .htaccess se /babies/states aayega (without /api)
-    if ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && !isset($pathParts[1])) {
+    // Normalize pathParts - remove 'babies' prefix if present (since .htaccess already routes /api/babies/* to babies.php)
+    $normalizedParts = $pathParts;
+    if (isset($pathParts[0]) && $pathParts[0] === 'babies') {
+        $normalizedParts = array_slice($pathParts, 1);
+    }
+    
+    // Route handling - now works with or without 'babies' prefix
+    if ($method === 'GET' && count($normalizedParts) === 0) {
         // GET /api/babies?state=&district=&city=
         getBabies($db);
-    } elseif ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && is_numeric($pathParts[1])) {
+    } elseif ($method === 'GET' && isset($normalizedParts[0]) && is_numeric($normalizedParts[0])) {
         // GET /api/babies/{id}
-        $id = intval($pathParts[1]);
+        $id = intval($normalizedParts[0]);
         getBabyById($db, $id);
-    } elseif ($method === 'POST' && isset($pathParts[0]) && $pathParts[0] === 'babies') {
+    } elseif ($method === 'POST' && count($normalizedParts) === 0) {
         // POST /api/babies
         addBabyPost($db, $uploadDir, $backendBaseUrl);
-    } elseif ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'states') {
+    } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'states') {
         // GET /api/babies/states
         getStates();
-    } elseif ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'districts') {
+    } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'districts') {
         // GET /api/babies/districts?state=
         getDistricts();
-    } elseif ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'cities') {
+    } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'cities') {
         // GET /api/babies/cities?district=
         getCities();
-    } elseif ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'admin' && isset($pathParts[2]) && $pathParts[2] === 'posts') {
+    } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'posts') {
         // GET /api/babies/admin/posts?status=
         getAdminPosts($db);
-    } elseif ($method === 'PUT' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'admin' && isset($pathParts[2]) && $pathParts[2] === 'posts' && isset($pathParts[3])) {
-        $id = intval($pathParts[3]);
-        if (isset($pathParts[4]) && $pathParts[4] === 'approve') {
+    } elseif ($method === 'PUT' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'posts' && isset($normalizedParts[2]) && is_numeric($normalizedParts[2])) {
+        $id = intval($normalizedParts[2]);
+        if (isset($normalizedParts[3]) && $normalizedParts[3] === 'approve') {
             // PUT /api/babies/admin/posts/{id}/approve
             approvePost($db, $id);
-        } elseif (isset($pathParts[4]) && $pathParts[4] === 'reject') {
+        } elseif (isset($normalizedParts[3]) && $normalizedParts[3] === 'reject') {
             // PUT /api/babies/admin/posts/{id}/reject
             rejectPost($db, $id, $uploadDir);
-        }
-    } elseif ($method === 'PUT' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'admin' && isset($pathParts[2]) && $pathParts[2] === 'fix-image-urls') {
-        // PUT /api/babies/admin/fix-image-urls
-        fixImageUrls($db, $backendBaseUrl);
-    } elseif ($method === 'DELETE' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'admin' && isset($pathParts[2]) && $pathParts[2] === 'posts') {
-        // DELETE /api/babies/admin/posts/{id}/delete or /api/babies/admin/posts/{id}
-        if (isset($pathParts[3]) && is_numeric($pathParts[3])) {
-            $id = intval($pathParts[3]);
-            // Check if pathParts[4] is 'delete' or doesn't exist (both should work)
-            if (!isset($pathParts[4]) || $pathParts[4] === 'delete' || $pathParts[4] === '') {
-                deletePost($db, $id, $uploadDir);
-            } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'Invalid delete endpoint']);
-            }
         } else {
             http_response_code(404);
-            echo json_encode(['error' => 'Post ID required for delete']);
+            echo json_encode(['error' => 'Invalid action. Use /approve or /reject']);
         }
-    } elseif ($method === 'GET' && isset($pathParts[0]) && $pathParts[0] === 'babies' && isset($pathParts[1]) && $pathParts[1] === 'images' && isset($pathParts[2])) {
+    } elseif ($method === 'PUT' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'fix-image-urls') {
+        // PUT /api/babies/admin/fix-image-urls
+        fixImageUrls($db, $backendBaseUrl);
+    } elseif ($method === 'DELETE' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'posts' && isset($normalizedParts[2]) && is_numeric($normalizedParts[2])) {
+        // DELETE /api/babies/admin/posts/{id}/delete or /api/babies/admin/posts/{id}
+        $id = intval($normalizedParts[2]);
+        // Check if pathParts[3] is 'delete' or doesn't exist (both should work)
+        if (!isset($normalizedParts[3]) || $normalizedParts[3] === 'delete' || $normalizedParts[3] === '') {
+            deletePost($db, $id, $uploadDir);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Invalid delete endpoint']);
+        }
+    } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'images' && isset($normalizedParts[1])) {
         // GET /api/babies/images/{filename}
-        getImage($pathParts[2], $uploadDir);
+        getImage($normalizedParts[1], $uploadDir);
     } else {
         http_response_code(404);
-        echo json_encode(['error' => 'Endpoint not found']);
+        echo json_encode(['error' => 'Endpoint not found', 'debug' => ['method' => $method, 'pathParts' => $pathParts, 'normalizedParts' => $normalizedParts]]);
     }
 } catch (Exception $e) {
     http_response_code(500);
