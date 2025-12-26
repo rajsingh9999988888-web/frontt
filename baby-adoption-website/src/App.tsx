@@ -77,9 +77,16 @@ export default function App(): React.JSX.Element {
           <Route path="/login-signup" element={<LoginSignup />} />
           <Route path="/employee-register" element={<Navigate to="/login-signup" />} />
           
-          {/* Dynamic city-based search route */}
-          {/* Example: /bhopal/call-girls-stores, /mumbai/massage-stores */}
-          <Route path="/:city/:category-stores" element={<CityCategoryPage />} />
+          {/* Dynamic city-based search route - Justdial style */}
+          {/* Examples: /bhopal/call girls, /ranchi/call girls, /mumbai/call girls */}
+          {/* Works for ANY city and category without hardcoding */}
+          {/* IMPORTANT: This route must come BEFORE /:category to avoid conflicts */}
+          <Route path="/:city/:category" element={<CityCategoryPage />} />
+          
+          {/* Auto-location route: /call girls (without city) - Must be last */}
+          {/* Will detect user location and redirect to /{city}/call girls */}
+          {/* Only matches if no city is in URL */}
+          <Route path="/:category" element={<CityCategoryPage />} />
 
           <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

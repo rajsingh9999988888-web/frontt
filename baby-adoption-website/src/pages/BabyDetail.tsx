@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
 import SafeImage from '../components/SafeImage';
+import { handleWhatsAppClick } from '../utils/tracking';
 
 type Baby = {
   id: number;
@@ -252,15 +253,22 @@ export default function BabyDetail() {
                         </a>
                       )}
                       {baby.whatsapp && (
-                        <a
-                          href={`https://wa.me/${baby.whatsapp}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-300"
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleWhatsAppClick(baby.whatsapp, {
+                              id: baby.id,
+                              city: baby.city || baby.place,
+                              district: baby.district,
+                              state: baby.state,
+                              name: baby.name,
+                            });
+                          }}
+                          className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-300"
                         >
                           <span>WhatsApp</span>
                           <span>{baby.whatsapp}</span>
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>

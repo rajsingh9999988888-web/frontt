@@ -50,7 +50,17 @@ RewriteRule ^babies/?(.*)$ babies.php/$1 [L,QSA]
 # /api/search/* -> search.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^search/?(.*)$ search.php [L,QSA]
+RewriteRule ^search/?(.*)$ search.php/$1 [L,QSA]
+
+# /api/track/* -> track.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^track/?(.*)$ track.php [L,QSA]
+
+# /api/whatsapp-webhook -> whatsapp-webhook.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^whatsapp-webhook/?$ whatsapp-webhook.php [L,QSA]
 
 # PHP settings
 php_value upload_max_filesize 10M

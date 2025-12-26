@@ -4,8 +4,28 @@
 RewriteEngine On
 RewriteBase /
 
+# Set proper MIME types for static assets FIRST (before any rewrites)
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType application/javascript .js
+    AddType application/json .json
+    AddType image/svg+xml .svg
+    AddType image/x-icon .ico
+    AddType image/webp .webp
+    AddType text/xml .xml
+</IfModule>
+
+# Allow direct access to static assets (CSS, JS, images, fonts, etc.)
+# These should be served directly without rewriting
+RewriteCond %{REQUEST_URI} \.(css|js|json|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf|eot|xml|txt|webmanifest)$ [NC]
+RewriteRule . - [L]
+
 # Allow direct access to sitemap.xml and robots.txt
 RewriteCond %{REQUEST_URI} ^/(sitemap\.xml|robots\.txt)$ [NC]
+RewriteRule . - [L]
+
+# Allow direct access to assets directory
+RewriteCond %{REQUEST_URI} ^/assets/ [NC]
 RewriteRule . - [L]
 
 # Handle Angular/React Router - All routes to index.html
@@ -23,6 +43,14 @@ RewriteRule . /index.html [L]
     # Set proper content type for XML files
     <FilesMatch "\.xml$">
         Header set Content-Type "text/xml; charset=utf-8"
+    </FilesMatch>
+    # Set proper content type for CSS files
+    <FilesMatch "\.css$">
+        Header set Content-Type "text/css; charset=utf-8"
+    </FilesMatch>
+    # Set proper content type for JS files
+    <FilesMatch "\.js$">
+        Header set Content-Type "application/javascript; charset=utf-8"
     </FilesMatch>
 </IfModule>
 

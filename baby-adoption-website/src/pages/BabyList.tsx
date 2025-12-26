@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { API_BASE_URL } from '../config/api';
 import SafeImage from '../components/SafeImage';
+import { handleWhatsAppClick } from '../utils/tracking';
 
 type BabyPost = {
   id: number;
@@ -126,6 +128,26 @@ const dummyBabyPosts: BabyPost[] = [
 
 export default function BabyList(): React.JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get current filters for SEO
+  const category = searchParams.get('category') || 'all';
+  const state = searchParams.get('state') || '';
+  const city = searchParams.get('city') || '';
+  
+  // Build dynamic title and description
+  const getPageTitle = () => {
+    let title = 'Call Girls, Massage & Escorts - BabyAdopt';
+    if (city) title = `${city} Call Girls & Escorts - BabyAdopt`;
+    else if (state) title = `${state} Call Girls & Escorts - BabyAdopt`;
+    return `${title} | nightsaathi.com`;
+  };
+  
+  const getPageDescription = () => {
+    let desc = 'Search verified call girls, massage services, and escorts by city, state, and category.';
+    if (city) desc = `Find verified call girls and escorts in ${city}. Browse listings with contact details, ratings, and reviews.`;
+    else if (state) desc = `Find verified call girls and escorts in ${state}. Browse by city and category.`;
+    return `${desc} Independent call girls on BabyAdopt.`;
+  };
   const initialCategory = searchParams.get('category')?.toLowerCase() ?? 'all';
   const initialState = searchParams.get('state') ?? '';
   const initialDistrict = searchParams.get('district') ?? '';
@@ -336,7 +358,16 @@ export default function BabyList(): React.JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-12 text-slate-900 transition-colors duration-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
+    <>
+      <Helmet>
+        <title>{getPageTitle()}</title>
+        <meta name="description" content={getPageDescription()} />
+        <meta name="keywords" content={`call girls ${city || state || 'india'}, escorts ${city || state || 'india'}, ${city || state || 'india'} call girls, nightsaathi, nightsaathi.com, babyadopt, verified escorts, independent call girls`} />
+        <meta property="og:title" content={getPageTitle()} />
+        <meta property="og:description" content={getPageDescription()} />
+        <link rel="canonical" href={`https://nightsaathi.com/baby-list${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-12 text-slate-900 transition-colors duration-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
       <div className="mx-auto w-full max-w-6xl space-y-10">
         <header className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-3">
@@ -410,17 +441,21 @@ export default function BabyList(): React.JSX.Element {
 
         {/* WhatsApp and Call Icons */}
         <div className="flex items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <a
-            href={`https://wa.me/917492072261`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => {
+              handleWhatsAppClick('917492072261', {
+                city: selectedCity || undefined,
+                district: selectedDistrict || undefined,
+                state: selectedState || undefined,
+              });
+            }}
             className="flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-white transition hover:bg-[#20BA5A] hover:shadow-md"
           >
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
             </svg>
             <span className="font-semibold">WhatsApp: 7492072261</span>
-          </a>
+          </button>
           <a
             href={`tel:+917492072261`}
             className="flex items-center gap-2 rounded-full bg-[#ff4f70] px-4 py-2 text-white transition hover:bg-[#e63e5d] hover:shadow-md"
@@ -542,14 +577,23 @@ export default function BabyList(): React.JSX.Element {
                     >
                       Call
                     </a>
-                    <a
-                      href={`https://wa.me/${post.whatsapp ?? ''}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (post.whatsapp) {
+                          handleWhatsAppClick(post.whatsapp, {
+                            id: post.id,
+                            city: post.city,
+                            district: post.district,
+                            state: post.state,
+                            name: post.name,
+                          });
+                        }
+                      }}
                       className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-emerald-500/70 bg-emerald-500/10 px-3 py-1.5 font-semibold text-emerald-600 transition hover:border-emerald-500 hover:bg-emerald-500/20 dark:border-emerald-400/60 dark:text-emerald-300"
                     >
                       WhatsApp
-                    </a>
+                    </button>
                   </div>
                 </div>
               </article>
@@ -573,6 +617,7 @@ export default function BabyList(): React.JSX.Element {
         )}
       </div>
     </div>
+    </>
   );
 }
 

@@ -29,11 +29,13 @@ if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
     $path = preg_replace('#^/babies\.php/?#', '', $path);
 }
 
-// Clean up the path
-$path = ltrim($path, '/');
+// Clean up the path - remove leading/trailing slashes
+$path = trim($path, '/');
 $pathParts = explode('/', $path);
 // Remove empty parts and re-index
-$pathParts = array_values(array_filter($pathParts, function($part) { return $part !== '' && $part !== null; }));
+$pathParts = array_values(array_filter($pathParts, function($part) { 
+    return $part !== '' && $part !== null && $part !== false; 
+}));
 
 // Debug logging (temporarily enabled for production debugging)
 error_log("Method: $method, REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'N/A') . ", PATH_INFO: " . ($_SERVER['PATH_INFO'] ?? 'N/A') . ", Path: $path, PathParts: " . json_encode($pathParts));
@@ -80,21 +82,26 @@ try {
     } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'posts') {
         // GET /api/babies/admin/posts?status=
         getAdminPosts($db);
-    } elseif ($method === 'PUT' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'posts' && isset($normalizedParts[2]) && is_numeric($normalizedParts[2])) {
-        $id = intval($normalizedParts[2]);
-        if (isset($normalizedParts[3]) && $normalizedParts[3] === 'approve') {
-            // PUT /api/babies/admin/posts/{id}/approve
-            approvePost($db, $id);
-        } elseif (isset($normalizedParts[3]) && $normalizedParts[3] === 'reject') {
-            // PUT /api/babies/admin/posts/{id}/reject
-            rejectPost($db, $id, $uploadDir);
+    } elseif ($method === 'PUT' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin') {
+        if (isset($normalizedParts[1]) && $normalizedParts[1] === 'posts' && isset($normalizedParts[2]) && is_numeric($normalizedParts[2])) {
+            $id = intval($normalizedParts[2]);
+            if (isset($normalizedParts[3]) && $normalizedParts[3] === 'approve') {
+                // PUT /api/babies/admin/posts/{id}/approve
+                approvePost($db, $id);
+            } elseif (isset($normalizedParts[3]) && $normalizedParts[3] === 'reject') {
+                // PUT /api/babies/admin/posts/{id}/reject
+                rejectPost($db, $id, $uploadDir);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Invalid action. Use /approve or /reject', 'debug' => ['normalizedParts' => $normalizedParts]]);
+            }
+        } elseif (isset($normalizedParts[1]) && $normalizedParts[1] === 'fix-image-urls') {
+            // PUT /api/babies/admin/fix-image-urls
+            fixImageUrls($db, $backendBaseUrl);
         } else {
             http_response_code(404);
-            echo json_encode(['error' => 'Invalid action. Use /approve or /reject']);
+            echo json_encode(['error' => 'Invalid admin endpoint', 'debug' => ['normalizedParts' => $normalizedParts]]);
         }
-    } elseif ($method === 'PUT' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'fix-image-urls') {
-        // PUT /api/babies/admin/fix-image-urls
-        fixImageUrls($db, $backendBaseUrl);
     } elseif ($method === 'DELETE' && isset($normalizedParts[0]) && $normalizedParts[0] === 'admin' && isset($normalizedParts[1]) && $normalizedParts[1] === 'posts' && isset($normalizedParts[2]) && is_numeric($normalizedParts[2])) {
         // DELETE /api/babies/admin/posts/{id}/delete or /api/babies/admin/posts/{id}
         $id = intval($normalizedParts[2]);
@@ -103,7 +110,7 @@ try {
             deletePost($db, $id, $uploadDir);
         } else {
             http_response_code(404);
-            echo json_encode(['error' => 'Invalid delete endpoint']);
+            echo json_encode(['error' => 'Invalid delete endpoint', 'debug' => ['normalizedParts' => $normalizedParts]]);
         }
     } elseif ($method === 'GET' && isset($normalizedParts[0]) && $normalizedParts[0] === 'images' && isset($normalizedParts[1])) {
         // GET /api/babies/images/{filename}
@@ -125,39 +132,47 @@ function getBabies($db) {
     
     // Join with users table to check admin status and order admin posts first
     // Only show APPROVED posts in babylist
-    // Also filter by date in SQL for better performance - only get posts from last 3 days
-    $threeDaysAgo = date('Y-m-d H:i:s', strtotime('-3 days'));
-    $sql = "SELECT bp.*, u.role as user_role 
+    // Show ALL approved posts by default (no date restriction)
+    // When filters are applied, show filtered posts
+    
+    // Build SQL query with location filters
+    $sql = "SELECT bp.*, COALESCE(u.role, 'NORMAL') as user_role 
             FROM baby_posts bp 
             LEFT JOIN users u ON bp.user_id = u.id 
-            WHERE bp.status = 'APPROVED' 
-            AND bp.created_at >= ?
-            ORDER BY 
-                CASE WHEN u.role = 'ADMIN' THEN 0 ELSE 1 END,
+            WHERE bp.status = 'APPROVED'";
+    $params = [];
+    
+    // Add location filters to SQL only if filters are provided
+    if ($state !== null && $state !== '') {
+        $sql .= " AND bp.state = ?";
+        $params[] = $state;
+    }
+    if ($district !== null && $district !== '') {
+        $sql .= " AND bp.district = ?";
+        $params[] = $district;
+    }
+    if ($city !== null && $city !== '') {
+        $sql .= " AND bp.city = ?";
+        $params[] = $city;
+    }
+    
+    $sql .= " ORDER BY 
+                CASE WHEN COALESCE(u.role, 'NORMAL') = 'ADMIN' THEN 0 ELSE 1 END,
                 bp.created_at DESC";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$threeDaysAgo]);
     
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Apply location filters (date filter already applied in SQL query)
-    $filtered = array_filter($posts, function($post) use ($state, $district, $city) {
-        // Location filters - only apply if filter values are provided and not empty
-        if ($state !== null && $state !== '' && (!isset($post['state']) || trim($post['state']) !== $state)) {
-            return false;
-        }
-        if ($district !== null && $district !== '' && (!isset($post['district']) || trim($post['district']) !== $district)) {
-            return false;
-        }
-        if ($city !== null && $city !== '' && (!isset($post['city']) || trim($post['city']) !== $city)) {
-            return false;
-        }
-        return true;
-    });
-    
-    // Convert to camelCase
-    $result = array_map('convertPostToCamelCase', array_values($filtered));
-    echo json_encode($result);
+    try {
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Convert to camelCase
+        $result = array_map('convertPostToCamelCase', array_values($posts));
+        echo json_encode($result);
+    } catch (Exception $e) {
+        http_response_code(500);
+        error_log("getBabies error: " . $e->getMessage());
+        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+    }
 }
 
 function getBabyById($db, $id) {

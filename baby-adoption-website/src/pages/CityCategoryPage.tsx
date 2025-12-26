@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { API_BASE_URL } from '../config/api';
 import { buildCanonicalUrl } from '../config/domain';
 import SafeImage from '../components/SafeImage';
+import { handleWhatsAppClick } from '../utils/tracking';
 
 type BabyPost = {
   id: number;
@@ -31,12 +32,14 @@ const categoryAccent: Record<string, string> = {
 const vibeIcons = ['💋', '🕯️', '🫦', '🍸', '🖤', '🔥', '🌙', '🪩'];
 
 /**
- * CityCategoryPage - Dynamic city-based search page
- * Route: /:city/:category-stores
- * Example: /bhopal/call-girls-stores
+ * CityCategoryPage - Dynamic city-based search page (Justdial style)
+ * Routes: 
+ *   - /:city/:category (e.g., /bhopal/call girls)
+ *   - /:category (e.g., /call girls - will auto-detect city)
  * 
  * This component:
  * - Extracts city and category from URL
+ * - Auto-detects city if missing (using geolocation/IP)
  * - Formats them for display and API calls
  * - Fetches data from /api/search/{city}/{category}
  * - Displays results using existing UI components
@@ -44,47 +47,131 @@ const vibeIcons = ['💋', '🕯️', '🫦', '🍸', '🖤', '🔥', '🌙', '�
  */
 export default function CityCategoryPage(): React.JSX.Element {
   const { city: cityParam, category: categoryParam } = useParams<{
-    city: string;
+    city?: string;
     category: string;
   }>();
 
   const [posts, setPosts] = useState<BabyPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [detectedCity, setDetectedCity] = useState<string | null>(null);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
   // Normalize city name: "bhopal" -> "Bhopal"
   const formatCityName = (city: string): string => {
     if (!city) return '';
     return city
-      .split('-')
+      .split(/[-_]/)
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
 
-  // Normalize category: "call-girls-stores" -> "call-girls"
+  // Normalize category slug: "call-girls" or "call girls" -> "call-girls" (for API)
   const normalizeCategorySlug = (slug: string): string => {
     if (!slug) return '';
-    // Remove "-stores" suffix if present
-    return slug.replace(/-stores$/, '').replace(/-store$/, '');
+    // Convert spaces to hyphens and lowercase for API call
+    return slug.toLowerCase().replace(/\s+/g, '-');
   };
 
-  // Format category for display: "call-girls" -> "Call Girls"
+  // Format category for display: "call-girls" or "call girls" -> "Call Girls"
   const formatCategoryName = (category: string): string => {
     if (!category) return '';
     return category
-      .split('-')
+      .split(/[-_\s]/)
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
 
-  const city = cityParam ? formatCityName(cityParam) : '';
-  const categorySlug = categoryParam ? normalizeCategorySlug(categoryParam) : '';
-  const categoryDisplay = categorySlug ? formatCategoryName(categorySlug) : '';
+  // Auto-detect user city using browser geolocation or IP
+  const detectUserCity = async (): Promise<string | null> => {
+    setIsDetectingLocation(true);
+    
+    try {
+      // Method 1: Try browser geolocation first
+      if (navigator.geolocation) {
+        return new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              try {
+                // Reverse geocoding using a free API
+                const response = await fetch(
+                  `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`
+                );
+                const data = await response.json();
+                const city = data.city || data.locality || null;
+                setIsDetectingLocation(false);
+                resolve(city);
+              } catch (err) {
+                // Fallback to IP-based detection
+                detectCityByIP().then(resolve);
+              }
+            },
+            () => {
+              // Geolocation failed, try IP-based
+              detectCityByIP().then(resolve);
+            },
+            { timeout: 5000 }
+          );
+        });
+      } else {
+        // No geolocation support, use IP-based
+        return await detectCityByIP();
+      }
+    } catch (err) {
+      setIsDetectingLocation(false);
+      return null;
+    }
+  };
 
+  // Detect city using IP address
+  const detectCityByIP = async (): Promise<string | null> => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      setIsDetectingLocation(false);
+      return data.city || null;
+    } catch (err) {
+      setIsDetectingLocation(false);
+      return null;
+    }
+  };
+
+  // Determine actual city to use
+  const actualCityParam = cityParam || detectedCity;
+  const city = actualCityParam ? formatCityName(actualCityParam) : '';
+  const categorySlug = categoryParam ? normalizeCategorySlug(categoryParam) : '';
+  const categoryDisplay = categoryParam ? formatCategoryName(categoryParam) : '';
+
+  // Auto-detect city if missing
+  useEffect(() => {
+    const handleAutoLocation = async () => {
+      // If city is missing, detect it
+      if (!cityParam && categoryParam) {
+        const detected = await detectUserCity();
+        if (detected) {
+          setDetectedCity(detected);
+          // Redirect to /{detectedCity}/{category}
+          const normalizedCity = detected.toLowerCase().replace(/\s+/g, '-');
+          const normalizedCategory = categoryParam.toLowerCase().replace(/\s+/g, '-');
+          window.location.href = `/${normalizedCity}/${normalizedCategory}`;
+        }
+      }
+    };
+
+    handleAutoLocation();
+  }, [cityParam, categoryParam]);
+
+  // Fetch data when city and category are available
   useEffect(() => {
     const fetchData = async () => {
-      if (!cityParam || !categorySlug) {
-        setError('Invalid city or category');
+      // Wait for city detection if needed
+      if (!cityParam && !detectedCity) {
+        return;
+      }
+
+      const cityToUse = cityParam || detectedCity;
+      if (!cityToUse || !categorySlug) {
+        setError('City or category missing');
         setLoading(false);
         return;
       }
@@ -93,9 +180,11 @@ export default function CityCategoryPage(): React.JSX.Element {
       setError(null);
 
       try {
-        // Call the search API
+        // Call the search API: /api/search/{city}/{category}
+        // Use original city param (lowercase) for API, not formatted
+        const apiCity = cityToUse.toLowerCase().replace(/\s+/g, '-');
         const response = await fetch(
-          `${API_BASE_URL}/search/${encodeURIComponent(cityParam)}/${encodeURIComponent(categorySlug)}`
+          `${API_BASE_URL}/search/${encodeURIComponent(apiCity)}/${encodeURIComponent(categorySlug)}`
         );
 
         if (!response.ok) {
@@ -114,20 +203,23 @@ export default function CityCategoryPage(): React.JSX.Element {
     };
 
     fetchData();
-  }, [cityParam, categorySlug]);
+  }, [cityParam, detectedCity, categorySlug]);
 
   // Generate canonical URL
-  const canonicalUrl = buildCanonicalUrl(`/${cityParam}/${categoryParam}`);
+  const actualCitySlug = (cityParam || detectedCity || '').toLowerCase().replace(/\s+/g, '-');
+  const categorySlugForUrl = categoryParam?.toLowerCase().replace(/\s+/g, '-') || '';
+  const canonicalUrl = `https://nightsaathi.com/${actualCitySlug}/${categorySlugForUrl}`;
 
   return (
     <React.Fragment>
       <Helmet>
-        <title>{`Top ${categoryDisplay} Stores in ${city} | babyadoption`}</title>
+        {/* Dynamic SEO - All generated from code */}
+        <title>{`Top ${categoryDisplay} Stores in ${city} | MyBabayadopt`}</title>
         <meta
           name="description"
           content={`Find the best ${categoryDisplay.toLowerCase()} call girls in ${city}. Ratings, reviews, contact details.`}
         />
-        <meta property="og:title" content={`Top ${categoryDisplay} Stores in ${city} | babyadoption`} />
+        <meta property="og:title" content={`Top ${categoryDisplay} Stores in ${city} | MyBabayadopt`} />
         <meta
           property="og:description"
           content={`Find the best ${categoryDisplay.toLowerCase()} call girls in ${city}. Ratings, reviews, contact details.`}
@@ -137,10 +229,19 @@ export default function CityCategoryPage(): React.JSX.Element {
 
       <div className="min-h-screen bg-[#f6f7fb] text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
         <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
+          {/* Auto-location detection message */}
+          {isDetectingLocation && !cityParam && (
+            <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-center dark:border-blue-800 dark:bg-blue-900/20">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Detecting your location...
+              </p>
+            </div>
+          )}
+
           {/* Page Header */}
           <header className="mb-8 space-y-4">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-              Top {categoryDisplay} girls in {city}
+              Top {categoryDisplay} call girls in {city}
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-300">
               Showing {posts.length} {posts.length === 1 ? 'listing' : 'listings'} in {city}
@@ -242,14 +343,23 @@ export default function CityCategoryPage(): React.JSX.Element {
                         >
                           Call
                         </a>
-                        <a
-                          href={`https://wa.me/${post.whatsapp ?? ''}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (post.whatsapp) {
+                              handleWhatsAppClick(post.whatsapp, {
+                                id: post.id,
+                                city: post.city || city,
+                                district: post.district,
+                                state: post.state,
+                                name: post.name,
+                              });
+                            }
+                          }}
                           className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-emerald-500/70 bg-emerald-500/10 px-3 py-1.5 font-semibold text-emerald-600 transition hover:border-emerald-500 hover:bg-emerald-500/20 dark:border-emerald-400/60 dark:text-emerald-300"
                         >
                           WhatsApp
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </article>
