@@ -187,12 +187,20 @@ export default function AdminDashboard() {
         }
         throw new Error(errorMessage);
       }
-      // Update state immediately
+      
+      // Verify deletion was successful
+      const result = await response.json();
+      if (!result.deleted && result.message !== 'Post deleted successfully') {
+        throw new Error('Delete operation may not have completed successfully');
+      }
+      
+      // Update state immediately (optimistic update)
       setAllPosts((prev) => prev.filter((post) => post.id !== id));
       setFilteredPosts((prev) => prev.filter((post) => post.id !== id));
       setDeletionsToday((prev) => prev + 1);
-      // Refresh to update counts
-      fetchPosts();
+      
+      // Refresh from server to ensure data is in sync with database
+      await fetchPosts();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Network error');
     }

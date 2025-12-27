@@ -585,16 +585,25 @@ function deletePost($db, $id, $uploadDir) {
             return;
         }
         
-        // Check if row was actually deleted
-        $rowsAffected = $stmt->rowCount();
-        if ($rowsAffected === 0) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Post not found or already deleted']);
+        // Verify deletion by checking if post still exists
+        $verifyStmt = $db->prepare("SELECT id FROM baby_posts WHERE id = ?");
+        $verifyStmt->execute([$id]);
+        $stillExists = $verifyStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($stillExists) {
+            // Post still exists, deletion failed
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to delete post: Post still exists after delete operation']);
             return;
         }
         
+        // Post successfully deleted - return success response
         http_response_code(200);
-        echo json_encode(['message' => 'Post deleted successfully', 'id' => $id]);
+        echo json_encode([
+            'message' => 'Post deleted successfully', 
+            'id' => $id,
+            'deleted' => true
+        ]);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
