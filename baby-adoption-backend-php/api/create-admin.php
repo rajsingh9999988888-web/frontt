@@ -1,70 +1,46 @@
 <?php
 /**
- * Create Default Admin User
- * Ye file ek baar run karo admin user create karne ke liye
- * URL: https://nightsaathi.com/api/create-admin.php
+ * Script to create an admin user or update existing user to admin
+ * Run this once to create admin account
+ * Usage: php create-admin.php
  */
 
 require_once __DIR__ . '/config/database.php';
-
-header('Content-Type: application/json');
 
 try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Default Admin Credentials (Java backend se same)
     $adminEmail = 'admin@134';
-    $adminPassword = '9382019794';
-    $adminRole = 'ADMIN';
-    $adminMobile = '9382019794';
+    $adminPassword = 'admin123'; // Change this password!
     
     // Check if admin already exists
-    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt = $db->prepare("SELECT id, email, role FROM users WHERE email = ?");
     $stmt->execute([$adminEmail]);
-    $existingAdmin = $stmt->fetch();
+    $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($existingAdmin) {
-        echo json_encode([
-            'status' => 'exists',
-            'message' => 'Admin user already exists',
-            'email' => $adminEmail,
-            'password' => $adminPassword,
-            'role' => $adminRole
-        ]);
+    if ($existingUser) {
+        // Update existing user to admin
+        $stmt = $db->prepare("UPDATE users SET role = 'ADMIN', password = ? WHERE email = ?");
+        $stmt->execute([$adminPassword, $adminEmail]);
+        echo "✅ Updated user '{$adminEmail}' to ADMIN role\n";
+        echo "Password reset to: {$adminPassword}\n";
     } else {
-        // Create admin user
+        // Create new admin user
         $stmt = $db->prepare("
-            INSERT INTO users (email, password, role, mobile, full_name)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO users (email, password, role, full_name)
+            VALUES (?, ?, 'ADMIN', 'Admin User')
         ");
-        
-        $stmt->execute([
-            $adminEmail,
-            $adminPassword,
-            $adminRole,
-            $adminMobile,
-            'Admin User'
-        ]);
-        
-        $userId = $db->lastInsertId();
-        
-        echo json_encode([
-            'status' => 'created',
-            'message' => 'Admin user created successfully',
-            'id' => $userId,
-            'email' => $adminEmail,
-            'password' => $adminPassword,
-            'role' => $adminRole,
-            'note' => 'Please delete this file after creating admin for security'
-        ]);
+        $stmt->execute([$adminEmail, $adminPassword]);
+        echo "✅ Created admin user '{$adminEmail}'\n";
+        echo "Password: {$adminPassword}\n";
     }
+    
+    echo "\nYou can now login with:\n";
+    echo "Email: {$adminEmail}\n";
+    echo "Password: {$adminPassword}\n";
+    echo "\n⚠️  IMPORTANT: Change the password after first login!\n";
+    
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+    echo "❌ Error: " . $e->getMessage() . "\n";
 }
-?>
-

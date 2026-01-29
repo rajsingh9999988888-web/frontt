@@ -15,6 +15,13 @@ DirectoryIndex index.php
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
     Header always set Access-Control-Allow-Credentials "true"
     Header always set Access-Control-Max-Age "3600"
+    
+    # Prevent caching of API responses - PHP will also set these
+    <FilesMatch "\.(php)$">
+        Header always set Cache-Control "no-cache, no-store, must-revalidate, private"
+        Header always set Pragma "no-cache"
+        Header always set Expires "0"
+    </FilesMatch>
 </IfModule>
 
 # Handle OPTIONS preflight requests

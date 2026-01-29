@@ -125,6 +125,11 @@ try {
 }
 
 function getBabies($db) {
+    // Prevent CDN caching - always get fresh data
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     // Get filter parameters and normalize (trim empty strings)
     $state = isset($_GET['state']) && $_GET['state'] !== '' ? trim($_GET['state']) : null;
     $district = isset($_GET['district']) && $_GET['district'] !== '' ? trim($_GET['district']) : null;
@@ -176,6 +181,11 @@ function getBabies($db) {
 }
 
 function getBabyById($db, $id) {
+    // Prevent CDN caching - always get fresh data
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     $stmt = $db->prepare("
         SELECT bp.*, u.role as user_role, u.email as user_email 
         FROM baby_posts bp 
@@ -194,6 +204,11 @@ function getBabyById($db, $id) {
 }
 
 function addBabyPost($db, $uploadDir, $backendBaseUrl) {
+    // Prevent CDN caching
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     $headers = getallheaders();
     $token = $headers['Authorization'] ?? '';
     
@@ -367,6 +382,11 @@ function getCities() {
 }
 
 function getAdminPosts($db) {
+    // Prevent CDN caching - always get fresh data
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     $headers = getallheaders();
     $token = $headers['Authorization'] ?? '';
     
@@ -418,6 +438,11 @@ function getAdminPosts($db) {
 }
 
 function approvePost($db, $id) {
+    // Prevent CDN caching
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     $headers = getallheaders();
     $token = $headers['Authorization'] ?? '';
     
@@ -471,6 +496,11 @@ function approvePost($db, $id) {
 }
 
 function rejectPost($db, $id, $uploadDir) {
+    // Prevent CDN caching
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     $headers = getallheaders();
     $token = $headers['Authorization'] ?? '';
     
@@ -536,6 +566,11 @@ function rejectPost($db, $id, $uploadDir) {
 }
 
 function deletePost($db, $id, $uploadDir) {
+    // Prevent CDN caching of delete responses
+    header('Cache-Control: no-cache, no-store, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
     $headers = getallheaders();
     $token = $headers['Authorization'] ?? '';
     
